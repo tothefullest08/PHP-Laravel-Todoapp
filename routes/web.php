@@ -14,3 +14,14 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+Route::get('/todo', 'TodoController@index');
+// Route::get('/todo/create', 'TodoController@create');
+Route::get('/todo/{id}', 'TodoController@show');
+Route::post('/todo', 'TodoController@store');
+// Route::get('/todo/{id}/edit', 'TodoController@edit');
+Route::put('/todo/{id}', 'TodoController@update');
+Route::delete('/todo/{id}', 'TodoController@destroy');
+
+// Route::resource('todo', 'TodoController');
