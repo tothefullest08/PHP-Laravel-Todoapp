@@ -30,7 +30,7 @@ Route::group([
 
 Route::group([
     'middleware' => 'auth.jwt',
-    'prefix' => 'todo',
+    'prefix'     => 'todo',
 ], function () {
     Route::get('/', 'TodoController@index');
     Route::post('/', 'TodoController@store');

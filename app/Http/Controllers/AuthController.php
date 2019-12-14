@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -35,7 +35,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $user,
+            'data'    => $user,
             'message' => 'Successfully registered',
         ], 201);
     }
@@ -55,6 +55,7 @@ class AuthController extends Controller
                 'message' => 'login failed. Unauthorized'
             ], 401);
         }
+
         return $this->respondWithToken($token);
     }
 
@@ -67,7 +68,7 @@ class AuthController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => Auth::guard('api')->user()
+            'data'    => Auth::guard('api')->user()
         ], 200);
     }
 
@@ -81,7 +82,7 @@ class AuthController extends Controller
         auth()->logout();
 
         return response()->json([
-            'success'=> true,
+            'success' => true,
             'message' => 'Successfully logged out'
         ], 200);
     }

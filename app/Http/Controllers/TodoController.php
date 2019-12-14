@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Todo;
 use Illuminate\Support\Facades\Validator;
+use App\Todo;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class TodoController extends Controller
@@ -51,7 +51,7 @@ class TodoController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'success'  => false,
+                'success' => false,
                 'message' => $validator->messages()
             ], 400);
         }
@@ -63,10 +63,11 @@ class TodoController extends Controller
         if ($this->user->todos()->save($todo)) {
             return response()->json([
                 'success' => true,
-                'data' => $todo,
+                'data'    => $todo,
                 'message' => 'New todo is successfully created'
             ], 201);
         }
+
         return response()->json([
             'success' => false,
             'message' => 'New todo could not be created'
@@ -93,7 +94,7 @@ class TodoController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $todo,
+            'data'    => $todo,
         ], 200);
     }
 
@@ -119,18 +120,18 @@ class TodoController extends Controller
         $validator = Validator::make($request->all(), [
             'title'       => 'string|min:3',
             'description' => 'string|min:3',
-            'completed' =>  'boolean'
+            'completed'   => 'boolean'
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success'  => false,
+                'success' => false,
                 'message' => $validator->messages()
             ], 400);
         }
 
         $todo->completed = $request->completed;
-        $newTodo = $todo->fill($request->all())->save();
+        $newTodo         = $todo->fill($request->all())->save();
 
         if (!$newTodo) {
             return response()->json([
