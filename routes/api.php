@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +13,28 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group([
+    'prefix' => 'auth',
+], function () {
+    Route::post('/register', 'AuthController@register')->name('register');
+    Route::post('/login', 'AuthController@login')->name('login');
+
+    Route::group([
+        'middleware' => 'auth.jwt'
+    ], function () {
+        Route::get('/logout', 'AuthController@logout')->name('logout');
+        Route::post('/refresh', 'AuthController@refresh')->name('refresh');
+        Route::post('/user', 'AuthController@user')->name('user');
+    });
+});
+
+Route::group([
+    'middleware' => 'auth.jwt',
+    'prefix' => 'todo',
+], function () {
+    Route::get('/', 'TodoController@index');
+    Route::post('/', 'TodoController@store');
+    Route::get('/{id}', 'TodoController@show');
+    Route::put('/{id}', 'TodoController@update');
+    Route::delete('/{id}', 'TodoController@destroy');
 });
