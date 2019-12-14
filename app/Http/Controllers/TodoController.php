@@ -3,11 +3,26 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Todo;
+use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class TodoController extends Controller
 {
+    /**
+     * @var
+     */
+    protected $user;
+
+    /**
+     * TodoController constructor.
+     *
+     */
+    public function __construct()
+    {
+        $this->user = JWTAuth::parseToken()->authenticate();
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +30,8 @@ class TodoController extends Controller
      */
     public function index()
     {
-        $todos = Todo::all();
+        $todos = $this->user->todos()->get(['title', 'description']);
+
         return response()->json($todos);
     }
 
@@ -28,16 +44,33 @@ class TodoController extends Controller
      */
     public function store(Request $request)
     {
-        $attribute = $request->validate([
-            'title'       => ['required', 'min:3'],
-            'description' => ['required', 'min:3'],
+        $validator = Validator::make($request->all(), [
+            'title'       => 'required|string|min:3',
+            'description' => 'required|string|min:3',
         ]);
 
-        Todo::create($attribute);
+        if ($validator->fails()) {
+            return response()->json([
+                'success'  => false,
+                'message' => $validator->messages()
+            ], 400);
+        }
 
+        $todo              = new Todo;
+        $todo->title       = $request->title;
+        $todo->description = $request->description;
+
+        if ($this->user->todos()->save($todo)) {
+            return response()->json([
+                'success' => true,
+                'data' => $todo,
+                'message' => 'New todo is successfully created'
+            ], 201);
+        }
         return response()->json([
-            'message' => 'New Todo record created'
-        ], 201);
+            'success' => false,
+            'message' => 'New todo could not be created'
+        ], 500);
     }
 
     /**
@@ -49,8 +82,19 @@ class TodoController extends Controller
      */
     public function show($id)
     {
-        $todo = Todo::where('id', $id)->get();
-        return response()->json($todo);
+        $todo = $this->user->todos()->find($id);
+
+        if (!$todo) {
+            return response()->json([
+                'success' => false,
+                'message' => 'todo for id ' . $id . ' does not exist.'
+            ], 400);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $todo,
+        ], 200);
     }
 
     /**
@@ -63,13 +107,41 @@ class TodoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $todo              = Todo::find($id);
-        $todo->title       = $request->input('title');
-        $todo->description = $request->input('description');
-        $todo->save();
+        $todo = $this->user->todos()->find($id);
+
+        if (!$todo) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The todo for id ' . $id . ' does not exist.'
+            ], 400);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'title'       => 'string|min:3',
+            'description' => 'string|min:3',
+            'completed' =>  'boolean'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success'  => false,
+                'message' => $validator->messages()
+            ], 400);
+        }
+
+        $todo->completed = $request->completed;
+        $newTodo = $todo->fill($request->all())->save();
+
+        if (!$newTodo) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The todo could not be updated'
+            ], 500);
+        }
 
         return response()->json([
-            'message' => 'successfully updated'
+            'success' => true,
+            'message' => 'The todo was successfully updated'
         ], 200);
     }
 
@@ -82,10 +154,24 @@ class TodoController extends Controller
      */
     public function destroy($id)
     {
-        $todo = Todo::find($id);
-        $todo->delete();
+        $todo = $this->user->todos()->find($id);
+
+        if (!$todo) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The todo for id ' . $id . ' does not exist.'
+            ], 400);
+        }
+
+        if (!$todo->delete()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The todo could not be deleted'
+            ], 500);
+        }
 
         return response()->json([
+            'success' => true,
             'message' => 'successfully deleted'
         ], 200);
     }
