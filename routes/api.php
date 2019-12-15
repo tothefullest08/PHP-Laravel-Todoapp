@@ -32,9 +32,9 @@ Route::group([
     'middleware' => 'auth.jwt',
     'prefix'     => 'todo',
 ], function () {
-    Route::get('/', 'TodoController@index');
-    Route::post('/', 'TodoController@store');
-    Route::get('/{id}', 'TodoController@show');
-    Route::put('/{id}', 'TodoController@update');
-    Route::delete('/{id}', 'TodoController@destroy');
+    Route::get('/', 'TodoController@index')->name('index.todo');
+    Route::post('/', 'TodoController@store')->name('store.todo');
+    Route::get('/{id}', 'TodoController@show')->name('show.todo');
+    Route::put('/{id}', 'TodoController@update')->name('update.todo');
+    Route::delete('/{id}', 'TodoController@destroy')->name('destroy.todo');
 });
