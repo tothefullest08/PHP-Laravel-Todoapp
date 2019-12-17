@@ -3,83 +3,119 @@
 namespace Tests\Feature;
 
 use App\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthControllerTest extends TestCase
 {
+    use RefreshDatabase;
+
     /** @test */
     public function testRegister()
     {
-        $data = factory(\App\User::class)->make()->toArray();
+        $data = factory(User::class)->make()->toArray();
 
-        $response = $this->json('POST', route('register'), $data);
+        $this->post(route('register'), $data)
+            ->assertStatus(201);
 
-        $response->assertStatus(201);
+        $this->assertCount(1, User::all());
+        $this->assertEquals($data['email'], User::first()->email);
+    }
+
+    /** @test */
+    public function testRegisterWithoutEmail()
+    {
+        $data = factory(User::class)->make()->toArray();
+
+        $this->post(route('register'), array_merge($data, ['email' => '']))
+            ->assertStatus(400);
+    }
+
+    /** @test */
+    public function testRegisterWithoutPassword()
+    {
+        $data = factory(User::class)->make()->toArray();
+
+        $this->post(route('register'), array_merge($data, ['password' => '']))
+            ->assertStatus(400);
     }
 
     /** @test */
     public function testLogin()
     {
-        User::create([
-            'email' => 'test@gmail.com',
-            'password' => bcrypt('test1234')
-        ]);
+        $data = factory(User::class)->make()->toArray();
+        $this->post(route('register'), $data);
 
-        $response = $this->json('POST', route('login'), [
-            'email' => 'test@gmail.com',
-            'password' => 'test1234'
-        ]);
+        $response = $this->post(route('login'), $data)
+            ->assertStatus(200);
 
-        // $user = factory(User::class)->create();
-        // $response = $this->post(route('login'), [
-        //     'email' => $user->email,
-        //     'password' => $user->password
-        // ]);
-        // dd($user);
-        // 왜안될까...?
-        // $data = factory(\App\User::class)->make()->toArray();
-        // $response = $this->json('POST', route('login'), [
-        //     'email' => $data['email'],
-        //     'password'=> $data['password']
-        // ]);
-
-        $response->assertStatus(200);
+        $this->assertCount(1, User::all());
         $this->assertArrayHasKey('access_token', $response->json());
-
-        User::where('email', 'test@gmail.com')->delete();
+        $this->assertEquals($data['email'], User::first()->email);
     }
 
     /** @test */
-    public function testCurrentUser()
+    public function testLoginWIthInvalidEmail()
     {
-        $user = User::create([
-            'email' => 'test@gmail.com',
-            'password' => bcrypt('test1234')
-        ]);
+        $data = factory(User::class)->make()->toArray();
+        $this->post(route('register'), $data);
 
-        $token = JWTAuth::fromUser($user);
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer '.$token
-        ])->json('POST', route('user'));
+        $response = $this->post(route('login'), array_merge($data, ['email' => 'abcd']))
+            ->assertStatus(401);
+    }
 
-        $response->assertStatus(200);
+    /** @test */
+    public function testLoginWithInvalidPassword()
+    {
+        $data = factory(User::class)->make()->toArray();
+        $this->post(route('register'), $data);
+
+        $response = $this->post(route('login'), array_merge($data, ['password' => 123123]))
+            ->assertStatus(401);
+    }
+
+    /** @test */
+    public function testGetUser()
+    {
+        $data = factory(User::class)->make()->toArray();
+        $this->post(route('register'), $data);
+
+        $token = $this->post(route('login'), $data)
+            ->getData()->access_token;
+
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->post(route('user'))
+            ->assertStatus(200);
+
+        $this->assertEquals($data['email'], $response->getData()->data->email);
+    }
+
+    /** @test */
+    public function testGetUserWithInvalidToken()
+    {
+        $data = factory(User::class)->make()->toArray();
+        $this->post(route('register'), $data);
+
+        $token = $this->post(route('login'), $data)
+            ->assertStatus(200)
+            ->getData()->access_token;
+
+        $response = $this->withHeaders(['Authorization' => 'Bearer ' . '1111111'])
+            ->post(route('user'))
+            ->assertStatus(401);
     }
 
     /** @test */
     public function testLogout()
     {
-        $user = User::create([
-            'email' => 'test@gmail.com',
-            'password' => bcrypt('test1234')
-        ]);
+        $data = factory(User::class)->make()->toArray();
+        $this->post(route('register'), $data);
 
+        $token = $this->post(route('login'), $data)
+            ->getData()->access_token;
 
-        $token = JWTAuth::fromUser($user);
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer '.$token
-        ])->json('GET', route('logout'));
-
-        $response->assertStatus(200);
+        $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+            ->get(route('logout'), $data)
+            ->assertStatus(200);
     }
 }

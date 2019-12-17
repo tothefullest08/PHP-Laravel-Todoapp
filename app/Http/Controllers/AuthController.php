@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -49,7 +48,7 @@ class AuthController extends Controller
     {
         $credentials = request(['email', 'password']);
 
-        if (!$token = Auth::guard('api')->attempt($credentials)) {
+        if (!$token = auth()->attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => 'login failed. Unauthorized'
@@ -68,7 +67,7 @@ class AuthController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data'    => Auth::guard('api')->user()
+            'data'    => auth()->user()
         ], 200);
     }
 
@@ -85,16 +84,6 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Successfully logged out'
         ], 200);
-    }
-
-    /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refresh()
-    {
-        return $this->respondWithToken(auth()->refresh());
     }
 
     /**
