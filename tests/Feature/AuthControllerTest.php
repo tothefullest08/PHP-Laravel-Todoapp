@@ -23,20 +23,20 @@ class AuthControllerTest extends TestCase
     }
 
     /** @test */
-    public function testRegisterWithoutEmail()
+    public function testRegisterWithInvalidEmail()
     {
         $data = factory(User::class)->make()->toArray();
 
-        $this->post(route('register'), array_merge($data, ['email' => '']))
+        $this->post(route('register'), array_merge($data, ['email' => '111']))
             ->assertStatus(400);
     }
 
     /** @test */
-    public function testRegisterWithoutPassword()
+    public function testRegisterWithinValidPassword()
     {
         $data = factory(User::class)->make()->toArray();
 
-        $this->post(route('register'), array_merge($data, ['password' => '']))
+        $this->post(route('register'), array_merge($data, ['password' => '1']))
             ->assertStatus(400);
     }
 
@@ -55,22 +55,12 @@ class AuthControllerTest extends TestCase
     }
 
     /** @test */
-    public function testLoginWIthInvalidEmail()
+    public function testUnauthorizedLogin()
     {
         $data = factory(User::class)->make()->toArray();
         $this->post(route('register'), $data);
 
-        $response = $this->post(route('login'), array_merge($data, ['email' => 'abcd']))
-            ->assertStatus(401);
-    }
-
-    /** @test */
-    public function testLoginWithInvalidPassword()
-    {
-        $data = factory(User::class)->make()->toArray();
-        $this->post(route('register'), $data);
-
-        $response = $this->post(route('login'), array_merge($data, ['password' => 123123]))
+        $this->post(route('login'), array_merge($data, ['email' => 'abcd']))
             ->assertStatus(401);
     }
 
@@ -96,11 +86,11 @@ class AuthControllerTest extends TestCase
         $data = factory(User::class)->make()->toArray();
         $this->post(route('register'), $data);
 
-        $token = $this->post(route('login'), $data)
+        $this->post(route('login'), $data)
             ->assertStatus(200)
             ->getData()->access_token;
 
-        $response = $this->withHeaders(['Authorization' => 'Bearer ' . '1111111'])
+        $this->withHeaders(['Authorization' => 'Bearer ' . '1111111'])
             ->post(route('user'))
             ->assertStatus(401);
     }

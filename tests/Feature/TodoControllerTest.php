@@ -6,109 +6,106 @@ use App\User;
 use App\Todo;
 use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class TodoControllerTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected $user;
+
+    protected $token;
 
     /** @test */
     public function testIndex()
     {
-        $token    = $this->authenticate();
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token
-        ])->json(
-            'GET',
-            route('index.todo')
-        );
+        $this->authenticate();
 
-        $response->assertStatus(200);
-    }
-
-    public function authenticate()
-    {
-        $user = User::create([
-            'email'    => 'test@gmail.com',
-            'password' => bcrypt('test1234')
-        ]);
-
-        $this->user = $user;
-        $token      = JWTAuth::fromUser($user);
-
-        return $token;
+        $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
+            ->get(route('index.todo'))
+            ->assertStatus(200);
     }
 
     /** @test */
     public function testStore()
     {
-        $token    = $this->authenticate();
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token
-        ])->json(
-            'POST',
-            route('store.todo'),
-            factory(Todo::class)->make()->toArray()
-        );
+        $this->authenticate();
+        $data = factory(Todo::class)->make()->toArray();
 
-        $response->assertStatus(201);
+        $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
+            ->post(route('store.todo'), $data)
+            ->assertStatus(201);
+
+        $this->assertCount(1, Todo::all());
+        $this->assertEquals($this->user->id, Todo::first()->user_id);
+    }
+
+    /** @test */
+    public function testStoreWithInvalidTitle()
+    {
+        $this->withoutExceptionHandling();
+        $this->authenticate();
+        $data = factory(Todo::class)->make()->toArray();
+
+        $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
+            ->post(route('store.todo'), array_merge($data, ['title' => 'aa']))
+            ->assertStatus(400);
+
+        $this->assertCount(0, Todo::all());
     }
 
     /** @test */
     public function testShow()
     {
-        $token = $this->authenticate();
-        $todo  = factory(Todo::class)->make();
+        $this->authenticate();
+        $todo = factory(Todo::class)->make();
         $this->user->todos()->save($todo);
 
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token
-        ])->json(
-            'GET',
-            route('show.todo', ['id' => $this->user->todos()->first()->id])
-        );
+        $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
+            ->get(route('show.todo', ['id' => $this->user->todos()->first()->id]))
+            ->assertStatus(200);
 
-        $response->assertStatus(200);
-        $count = User::where('email', 'test@gmail.com')->first()->todos()->count();
+        $count = User::where('email', $this->user->email)->first()->todos()->count();
         $this->assertEquals(1, $count);
     }
 
     /** @test */
     public function testUpdate()
     {
-        $token = $this->authenticate();
-        $todo  = factory(Todo::class)->make();
+        $this->withoutExceptionHandling();
+        $this->authenticate();
+        $todo = factory(Todo::class)->make();
         $this->user->todos()->save($todo);
+        $userId = $this->user->todos()->first()->id;
 
-        $response = $this->WithHeaders([
-            'Authorization' => 'Bearer ' . $token
-        ])->json(
-            'PUT',
-            route('update.todo', ['id' => $this->user->todos()->first()->id]),
-            [
-                'title'       => 'updated title',
-                'description' => 'updated description',
-                'completed'   => 1
-            ]
-        );
-        $response->assertStatus(200);
-        $this->assertEquals('updated title', $this->user->todos()->first()->title);
+        $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
+            ->put(route('update.todo', ['id' => $userId]), factory(Todo::class)->make()->toArray())
+            ->assertStatus(200);
+
+        $count = User::where('email', $this->user->email)->first()->todos()->count();
+        $this->assertEquals(1, $count);
     }
 
     /** @test */
     public function testDelete()
     {
-        $token = $this->authenticate();
-        $todo  = factory(Todo::class)->make();
+        $this->authenticate();
+        $todo = factory(Todo::class)->make();
         $this->user->todos()->save($todo);
 
-        $response = $this->WithHeaders([
-            'Authorization' => 'Bearer ' . $token
-        ])->json(
-            'DELETE',
-            route('destroy.todo', ['id' => $this->user->todos()->first()->id])
-        );
+        $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
+            ->delete(route('destroy.todo', ['id' => $this->user->todos()->first()->id]))
+            ->assertStatus(200);
 
-        $response->assertStatus(200);
         $this->assertEquals(0, $this->user->todos()->count());
+    }
+
+    /**
+     * store current user object & token as properties
+     */
+    private function authenticate()
+    {
+        $this->user  = factory(User::class)->create();
+        $this->token = JWTAuth::fromUser($this->user);
     }
 }
