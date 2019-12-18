@@ -25,7 +25,7 @@ class TodoController extends Controller
      */
     public function index(): JsonResponse
     {
-        $todos = $this->user->todos()->get(['title', 'description', 'completed']);
+        $todos = Todo::where('user_id', $this->user->id)->orderBy('updated_at', 'DESC')->get();
 
         return response()->json($todos);
     }
