@@ -55,6 +55,39 @@ class TodoControllerTest extends TestCase
     }
 
     /** @test */
+    public function testStoreWithInvalidCompleted()
+    {
+        $this->authenticate();
+        $data = factory(Todo::class)->make()->toArray();
+
+        $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
+            ->post(route('store.todo'), array_merge($data, ['completed' => 'aa']))
+            ->assertStatus(400);
+
+        $this->assertCount(0, Todo::all());
+        $this->assertCount(1, User::all());
+    }
+
+    /** @test */
+    public function testStoreWithInvalidToken()
+    {
+        $this->authenticate();
+        $data = factory(Todo::class)->make()->toArray();
+        $invalid_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwO'.
+            'lwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC91c2Vyc1wvbG9naW4iLCJpYXQiOjE1NzY2M'.
+            'zU4NjgsImV4cCI6MTU3NjYzOTQ2OCwibmJmIjoxNTc2NjM1ODY4LCJqdGkiOiJpdVhhN2'.
+            'lmQlBiS0JpWVhMIiwic3ViIjozLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE'.
+            '1M2ExNGUwYjA0NzU0NmFhIn0.2CTFHA7HZ95B2rC0qottsi6wjiI_m6QGjLkfFmA9oYQ';
+
+        $this->withHeaders(['Authorization' => 'Bearer ' . $invalid_token])
+            ->post(route('store.todo'), $data)
+            ->assertStatus(500);
+
+        $this->assertCount(0, Todo::all());
+        $this->assertCount(1, User::all());
+    }
+
+    /** @test */
     public function testShow()
     {
         $this->authenticate();
@@ -70,9 +103,20 @@ class TodoControllerTest extends TestCase
     }
 
     /** @test */
+    public function testShowWithInvalidId()
+    {
+        $this->authenticate();
+        $todo = factory(Todo::class)->make();
+        $this->user->todos()->save($todo);
+
+        $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
+            ->get(route('show.todo', ['id' => 123]))
+            ->assertStatus(404);
+    }
+
+    /** @test */
     public function testUpdate()
     {
-        $this->withoutExceptionHandling();
         $this->authenticate();
         $todo = factory(Todo::class)->make();
         $this->user->todos()->save($todo);
@@ -87,6 +131,44 @@ class TodoControllerTest extends TestCase
     }
 
     /** @test */
+    public function testUpdateWithInvalidRequest()
+    {
+        $this->authenticate();
+        $todo = factory(Todo::class)->make();
+        $this->user->todos()->save($todo);
+        $userId = $this->user->todos()->first()->id;
+
+        $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
+            ->put(route('update.todo', ['id' => $userId]), ['completed' => 'failed'])
+            ->assertStatus(400);
+    }
+
+    /** @test */
+    public function testUpdateWithInvalidId()
+    {
+        $this->authenticate();
+        $todo = factory(Todo::class)->make();
+        $this->user->todos()->save($todo);
+
+        $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
+            ->put(route('update.todo', ['id' => 999]), factory(Todo::class)->make()->toArray())
+            ->assertStatus(404);
+    }
+
+    public function testUpdateWithoutAuthorization()
+    {
+        $this->authenticate();
+        $todo = factory(Todo::class)->make();
+        $this->user->todos()->save($todo);
+        $userId = $this->user->todos()->first()->id;
+
+        $newData = factory(Todo::class)->make()->toArray();
+
+        $this->put(route('update.todo', ['id' => $userId]), $newData)
+            ->assertStatus(500);
+    }
+
+    /** @test */
     public function testDelete()
     {
         $this->authenticate();
@@ -98,6 +180,19 @@ class TodoControllerTest extends TestCase
             ->assertStatus(200);
 
         $this->assertEquals(0, $this->user->todos()->count());
+    }
+
+    public function testDeleteWithInvalidId()
+    {
+        $this->authenticate();
+        $todo = factory(Todo::class)->make();
+        $this->user->todos()->save($todo);
+
+        $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
+            ->delete(route('destroy.todo', ['id' => 999]))
+            ->assertStatus(404);
+
+        $this->assertEquals(1, $this->user->todos()->count());
     }
 
     /**

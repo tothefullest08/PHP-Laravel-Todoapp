@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Todo;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-// use Illuminate\Validation\Validator;
-use App\Todo;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class TodoController extends Controller
@@ -17,20 +17,13 @@ class TodoController extends Controller
 
     public function __construct()
     {
-        try {
-            $this->user = JWTAuth::parseToken()->authenticate();
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
+        $this->user = JWTAuth::parseToken()->authenticate();
     }
 
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $todos = $this->user->todos()->get(['title', 'description', 'completed']);
 
@@ -38,11 +31,11 @@ class TodoController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), $this->validateRequest());
 
@@ -55,61 +48,43 @@ class TodoController extends Controller
         $todo->description = $request->description;
 
         if ($this->user->todos()->save($todo)) {
-            return response()->json([
-                'success' => true,
-                'message' => 'New todo is successfully created'
-            ], 201);
+            return $this->respondWithSuccess('create', 201, $todo);
         }
 
-        return response()->json([
-            'success' => false,
-            'message' => 'New todo could not be created'
-        ], 500);
+        return $this->respondWithError('create', 500);
     }
 
     /**
      * @param int $id
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show($id): JsonResponse
     {
         $todo = $this->user->todos()->find($id);
 
         if (!$todo) {
-            return $this->respondNotFound($id);
+            return $this->respondWithError($id . 'does not exist.', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data'    => $todo,
-        ], 200);
+        return $this->respondWithSuccess('detail page access', 200, $todo);
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @param int $id
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
         $todo = $this->user->todos()->find($id);
 
         if (!$todo) {
-            return $this->respondNotFound($id);
+            return $this->respondWithError($id . ' does not exist.', 404);
         }
 
-        $validator = Validator::make(
-            $request->all(),
-            array_merge($this->validateRequest(), ['completed' => 'boolean'])
-        );
-
-        // $validator = Validator::make($request->all(), [
-        //     'title'       => 'string|min:3',
-        //     'description' => 'string|min:3',
-        //     'completed'   => 'boolean'
-        // ]);
+        $validator = Validator::make($request->all(), array_merge($this->validateRequest()));
 
         if ($validator->fails()) {
             return $this->validateBadResponse($validator);
@@ -119,51 +94,54 @@ class TodoController extends Controller
         $newTodo         = $todo->fill($request->all())->save();
 
         if (!$newTodo) {
-            return response()->json([
-                'success' => false,
-                'message' => 'The todo could not be updated'
-            ], 500);
+            return $this->respondWithError('update', 500);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'The todo was successfully updated',
-        ], 200);
+        return $this->respondWithSuccess('update', 200, $todo);
     }
 
     /**
      * @param int $id
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         $todo = $this->user->todos()->find($id);
 
         if (!$todo) {
-            return $this->respondNotFound($id);
+            return $this->respondWithError($id . ' does not exist.', 404);
         }
 
         if (!$todo->delete()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'The todo could not be deleted'
-            ], 500);
+            return $this->respondwithError('delete', 500);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'successfully deleted'
-        ], 200);
+        return $this->respondwithSuccess('delete', 200, $todo);
     }
 
     /**
-     * return 400 error response
+     * return data for validation
+     *
+     * @return array
+     */
+    private function validateRequest(): array
+    {
+        return [
+            'title'       => 'required|string|min:3',
+            'description' => 'required|string|min:3',
+            'completed'   => 'boolean'
+        ];
+    }
+
+    /**
+     * return 400 error response when input data validation failed.
+     *
      * @param mixed $validator
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    private function validateBadResponse($validator)
+    private function validateBadResponse(object $validator): JsonResponse
     {
         return response()->json([
             'success' => false,
@@ -172,30 +150,36 @@ class TodoController extends Controller
     }
 
     /**
-     * return data for validation
+     * return adequate Http Status code success
      *
-     * @return array
+     * @param string $message
+     * @param int $status
+     * @param object $data
+     *
+     * @return JsonResponse
      */
-    private function validateRequest()
+    private function respondWithSuccess(string $message, int $status, object $data): JsonResponse
     {
-        return [
-            'title'       => 'required|string|min:3',
-            'description' => 'required|string|min:3',
-        ];
+        return response()->json([
+            'success' => true,
+            'message' => $message . ' succeed',
+            'data' => $data->toArray()
+        ], $status);
     }
 
     /**
-     * return 404 error response
+     * return adequate Http Status code for error
      *
-     * @param $id
+     * @param string $message
+     * @param int $status
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    private function respondNotFound($id)
+    private function respondWithError(string $message, int $status): JsonResponse
     {
         return response()->json([
             'success' => false,
-            'message' => 'todo for id ' . $id . ' does not exist.'
-        ], 404);
+            'message' => $message . ' failed',
+        ], $status);
     }
 }

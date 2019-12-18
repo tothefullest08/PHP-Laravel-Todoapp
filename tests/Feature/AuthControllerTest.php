@@ -41,6 +41,19 @@ class AuthControllerTest extends TestCase
     }
 
     /** @test */
+    public function testRegisterWithExistingEmail()
+    {
+        $user = factory(User::class)->create();
+        $email = $user->email;
+        $data = array_merge(factory(User::class)->make()->toArray(), ['email'=> $email]);
+
+        $this->post(route('register'), $data)
+            ->assertStatus(400);
+
+        $this->assertCount(1, User::all());
+    }
+
+    /** @test */
     public function testLogin()
     {
         $data = factory(User::class)->make()->toArray();
@@ -87,7 +100,6 @@ class AuthControllerTest extends TestCase
         $this->post(route('register'), $data);
 
         $this->post(route('login'), $data)
-            ->assertStatus(200)
             ->getData()->access_token;
 
         $this->withHeaders(['Authorization' => 'Bearer ' . '1111111'])
