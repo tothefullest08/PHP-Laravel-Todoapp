@@ -9,7 +9,5 @@ $factory->define(Todo::class, function (Faker $faker) {
     return [
         'title'       => $faker->sentence,
         'description' => $faker->paragraph,
-        'user_id'     => factory('App\User')->make()->id,
-        'completed'   => $faker->boolean
     ];
 });

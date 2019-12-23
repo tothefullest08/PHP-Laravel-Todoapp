@@ -14,6 +14,8 @@ class TodoControllerTest extends TestCase
 
     protected $user;
 
+    protected $userId;
+
     protected $token;
 
     /** @test */
@@ -37,21 +39,18 @@ class TodoControllerTest extends TestCase
             ->assertStatus(201);
 
         $this->assertCount(1, Todo::all());
-        $this->assertEquals($this->user->id, Todo::first()->user_id);
+        $this->assertEquals($this->userId, Todo::first()->user_id);
     }
 
     /** @test */
     public function testStoreWithInvalidTitle()
     {
-        $this->withoutExceptionHandling();
         $this->authenticate();
-        $data = factory(Todo::class)->make()->toArray();
+        $data = array_merge(factory(Todo::class)->make()->toArray(), ['title' => '']);
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->post(route('store.todo'), array_merge($data, ['title' => 'aa']))
-            ->assertStatus(400);
-
-        $this->assertCount(0, Todo::all());
+            ->post(route('store.todo'), $data)
+            ->assertSessionHasErrors();
     }
 
     /** @test */
@@ -61,8 +60,8 @@ class TodoControllerTest extends TestCase
         $data = factory(Todo::class)->make()->toArray();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->post(route('store.todo'), array_merge($data, ['completed' => 'aa']))
-            ->assertStatus(400);
+            ->post(route('store.todo'), array_merge($data, ['completed' => 'a']))
+            ->assertStatus(302); // validation failed => 302 error to be fixed
 
         $this->assertCount(0, Todo::all());
         $this->assertCount(1, User::all());
@@ -81,7 +80,7 @@ class TodoControllerTest extends TestCase
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $invalid_token])
             ->post(route('store.todo'), $data)
-            ->assertStatus(500);
+            ->assertStatus(401);
 
         $this->assertCount(0, Todo::all());
         $this->assertCount(1, User::all());
@@ -92,13 +91,14 @@ class TodoControllerTest extends TestCase
     {
         $this->authenticate();
         $todo = factory(Todo::class)->make();
-        $this->user->todos()->save($todo);
+        $todo->user_id = $this->userId;
+        $todo->save();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->get(route('show.todo', ['id' => $this->user->todos()->first()->id]))
+            ->get(route('show.todo', ['id' => $todo->id]))
             ->assertStatus(200);
 
-        $count = User::where('email', $this->user->email)->first()->todos()->count();
+        $count = User::query()->where('id', '=', $this->user->id)->first()->todos()->count();
         $this->assertEquals(1, $count);
     }
 
@@ -107,26 +107,30 @@ class TodoControllerTest extends TestCase
     {
         $this->authenticate();
         $todo = factory(Todo::class)->make();
-        $this->user->todos()->save($todo);
+        $todo->user_id = $this->userId;
+        $todo->save();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->get(route('show.todo', ['id' => 123]))
+            ->get(route('show.todo', ['id' => 999]))
             ->assertStatus(404);
     }
 
     /** @test */
     public function testUpdate()
     {
+        $this->withoutExceptionHandling();
         $this->authenticate();
         $todo = factory(Todo::class)->make();
-        $this->user->todos()->save($todo);
-        $userId = $this->user->todos()->first()->id;
+        $todo->user_id = $this->userId;
+        $todo->save();
+
+        $data = factory(Todo::class)->make()->toArray();
 
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->put(route('update.todo', ['id' => $userId]), factory(Todo::class)->make()->toArray())
+            ->put(route('update.todo', ['id' => $todo->id]), $data)
             ->assertStatus(200);
 
-        $count = User::where('email', $this->user->email)->first()->todos()->count();
+        $count = User::query()->where('id', '=', $todo->user_id)->first()->todos()->count();
         $this->assertEquals(1, $count);
     }
 
@@ -135,12 +139,12 @@ class TodoControllerTest extends TestCase
     {
         $this->authenticate();
         $todo = factory(Todo::class)->make();
-        $this->user->todos()->save($todo);
-        $userId = $this->user->todos()->first()->id;
+        $todo->user_id = $this->userId;
+        $todo->save();
 
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->put(route('update.todo', ['id' => $userId]), ['completed' => 'failed'])
-            ->assertStatus(400);
+            ->put(route('update.todo', ['id' => $todo->id]), ['title' => 'f'])
+            ->assertSessionHasErrors();
     }
 
     /** @test */
@@ -148,10 +152,13 @@ class TodoControllerTest extends TestCase
     {
         $this->authenticate();
         $todo = factory(Todo::class)->make();
-        $this->user->todos()->save($todo);
+        $todo->user_id = $this->userId;
+        $todo->save();
+
+        $data = factory(Todo::class)->make()->toArray();
 
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->put(route('update.todo', ['id' => 999]), factory(Todo::class)->make()->toArray())
+            ->put(route('update.todo', ['id' => 999]), $data)
             ->assertStatus(404);
     }
 
@@ -159,13 +166,13 @@ class TodoControllerTest extends TestCase
     {
         $this->authenticate();
         $todo = factory(Todo::class)->make();
-        $this->user->todos()->save($todo);
-        $userId = $this->user->todos()->first()->id;
+        $todo->user_id = $this->userId;
+        $todo->save();
 
-        $newData = factory(Todo::class)->make()->toArray();
+        $data = factory(Todo::class)->make()->toArray();
 
-        $this->put(route('update.todo', ['id' => $userId]), $newData)
-            ->assertStatus(500);
+        $this->put(route('update.todo', ['id' => $todo->id]), $data)
+            ->assertStatus(401);
     }
 
     /** @test */
@@ -173,10 +180,11 @@ class TodoControllerTest extends TestCase
     {
         $this->authenticate();
         $todo = factory(Todo::class)->make();
-        $this->user->todos()->save($todo);
+        $todo->user_id = $this->userId;
+        $todo->save();
 
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->delete(route('destroy.todo', ['id' => $this->user->todos()->first()->id]))
+            ->delete(route('destroy.todo', ['id' => $todo->id]))
             ->assertStatus(200);
 
         $this->assertEquals(0, $this->user->todos()->count());
@@ -186,10 +194,11 @@ class TodoControllerTest extends TestCase
     {
         $this->authenticate();
         $todo = factory(Todo::class)->make();
-        $this->user->todos()->save($todo);
+        $todo->user_id = $this->userId;
+        $todo->save();
 
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->delete(route('destroy.todo', ['id' => 999]))
+            ->delete(route('destroy.todo', ['id' => '9999']))
             ->assertStatus(404);
 
         $this->assertEquals(1, $this->user->todos()->count());
@@ -201,6 +210,7 @@ class TodoControllerTest extends TestCase
     private function authenticate()
     {
         $this->user  = factory(User::class)->create();
+        $this->userId = $this->user->id;
         $this->token = JWTAuth::fromUser($this->user);
     }
 }

@@ -2,56 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateTodoRequest;
+use App\Http\Requests\UpdateTodoRequest;
 use App\Todo;
+use Exception;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class TodoController extends Controller
 {
     /**
      * @var
      */
-    protected $user;
-
-    public function __construct()
-    {
-        $this->user = JWTAuth::parseToken()->authenticate();
-    }
+    protected $userId;
 
     /**
      * @return JsonResponse
      */
     public function index(): JsonResponse
     {
-        $todos = Todo::where('user_id', $this->user->id)->orderBy('updated_at', 'DESC')->get();
+        $this->userId = request()->user()->id;
+        $todos = Todo::query()->where('user_id', $this->userId)->orderBy('id', 'DESC')->get();
 
-        return response()->json($todos);
+        return $this->respondWithSuccess('index page access', 200, $todos);
     }
 
     /**
-     * @param Request $request
+     * @param CreateTodoRequest $request
      *
      * @return JsonResponse
      */
-    public function store(Request $request): JsonResponse
+    public function store(CreateTodoRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), $this->validateRequest());
-
-        if ($validator->fails()) {
-            return $this->validateBadResponse($validator);
-        }
+        $this->userId = auth()->user()->id;
 
         $todo              = new Todo;
         $todo->title       = $request->title;
         $todo->description = $request->description;
+        $todo->user_id = $this->userId;
 
-        if ($this->user->todos()->save($todo)) {
-            return $this->respondWithSuccess('create', 201, $todo);
+        try {
+            $todo->save();
+        } catch (QueryException $e) {
+            return $this->respondwithError('create', 400);
         }
 
-        return $this->respondWithError('create', 500);
+        return $this->respondWithSuccess('create', 201, $todo);
     }
 
     /**
@@ -61,40 +58,25 @@ class TodoController extends Controller
      */
     public function show($id): JsonResponse
     {
-        $todo = $this->user->todos()->find($id);
-
-        if (!$todo) {
-            return $this->respondWithError($id . 'does not exist.', 404);
-        }
+        $todo = Todo::query()->where('id', '=', $id)->firstOrFail();
 
         return $this->respondWithSuccess('detail page access', 200, $todo);
     }
 
     /**
-     * @param Request $request
+     * @param UpdateTodoRequest $request
      * @param int $id
      *
      * @return JsonResponse
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateTodoRequest $request, $id): JsonResponse
     {
-        $todo = $this->user->todos()->find($id);
+        $todo = Todo::query()->where('id', '=', $id)->firstOrFail();
 
-        if (!$todo) {
-            return $this->respondWithError($id . ' does not exist.', 404);
-        }
-
-        $validator = Validator::make($request->all(), array_merge($this->validateRequest()));
-
-        if ($validator->fails()) {
-            return $this->validateBadResponse($validator);
-        }
-
-        $todo->completed = $request->completed;
-        $newTodo         = $todo->fill($request->all())->save();
-
-        if (!$newTodo) {
-            return $this->respondWithError('update', 500);
+        try {
+            $todo->fill($request->all())->save();
+        } catch (QueryException $e) {
+            return $this->respondwithError('update', 400);
         }
 
         return $this->respondWithSuccess('update', 200, $todo);
@@ -104,49 +86,19 @@ class TodoController extends Controller
      * @param int $id
      *
      * @return JsonResponse
+     * @throws Exception
      */
     public function destroy($id): JsonResponse
     {
-        $todo = $this->user->todos()->find($id);
+        $todo = Todo::query()->where('id', $id)->firstOrFail();
 
-        if (!$todo) {
-            return $this->respondWithError($id . ' does not exist.', 404);
-        }
-
-        if (!$todo->delete()) {
-            return $this->respondwithError('delete', 500);
+        try {
+            $todo->delete();
+        } catch (QueryException $e) {
+            return $this->respondwithError('delete', 400);
         }
 
         return $this->respondwithSuccess('delete', 200, $todo);
-    }
-
-    /**
-     * return data for validation
-     *
-     * @return array
-     */
-    private function validateRequest(): array
-    {
-        return [
-            'title'       => 'required|string|min:3',
-            'description' => 'required|string|min:3',
-            'completed'   => 'boolean'
-        ];
-    }
-
-    /**
-     * return 400 error response when input data validation failed.
-     *
-     * @param mixed $validator
-     *
-     * @return JsonResponse
-     */
-    private function validateBadResponse(object $validator): JsonResponse
-    {
-        return response()->json([
-            'success' => false,
-            'message' => $validator->messages()
-        ], 400);
     }
 
     /**
@@ -163,7 +115,7 @@ class TodoController extends Controller
         return response()->json([
             'success' => true,
             'message' => $message . ' succeed',
-            'data' => $data->toArray()
+            'data'    => $data->toArray()
         ], $status);
     }
 
