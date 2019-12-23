@@ -26,7 +26,7 @@ class CreateTodoRequest extends FormRequest
         return [
             'title'       => 'required|string|min:3',
             'description' => 'required|string|min:3',
-            'completed' => 'boolean'
+            'completed'   => 'boolean'
         ];
     }
 
@@ -36,12 +36,12 @@ class CreateTodoRequest extends FormRequest
     public function messages()
     {
         return [
-            'title.required' => 'title field is required',
-            'title.string' => 'title field must be string',
-            'title.min' => 'title field must be 3 character minimum',
+            'title.required'       => 'title field is required',
+            'title.string'         => 'title field must be string',
+            'title.min'            => 'title field must be 3 character minimum',
             'description.required' => 'title field is required',
-            'description.string' => 'title field must be string',
-            'description.min' => 'title field must be 3 character minimum',
+            'description.string'   => 'title field must be string',
+            'description.min'      => 'title field must be 3 character minimum',
         ];
     }
 }

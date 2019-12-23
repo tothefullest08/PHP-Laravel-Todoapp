@@ -22,7 +22,7 @@ class TodoController extends Controller
     public function index(): JsonResponse
     {
         $this->userId = request()->user()->id;
-        $todos = Todo::query()->where('user_id', $this->userId)->orderBy('id', 'DESC')->get();
+        $todos        = Todo::query()->where('user_id', $this->userId)->orderBy('id', 'DESC')->get();
 
         return $this->respondWithSuccess('index page access', 200, $todos);
     }
@@ -39,7 +39,7 @@ class TodoController extends Controller
         $todo              = new Todo;
         $todo->title       = $request->title;
         $todo->description = $request->description;
-        $todo->user_id = $this->userId;
+        $todo->user_id     = $this->userId;
 
         try {
             $todo->save();

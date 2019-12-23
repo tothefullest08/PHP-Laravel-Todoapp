@@ -5,10 +5,15 @@ namespace Tests\Feature;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected $user;
+
+    protected $token;
 
     /** @test */
     public function testRegister()
@@ -43,9 +48,9 @@ class AuthControllerTest extends TestCase
     /** @test */
     public function testRegisterWithExistingEmail()
     {
-        $user = factory(User::class)->create();
+        $user  = factory(User::class)->create();
         $email = $user->email;
-        $data = array_merge(factory(User::class)->make()->toArray(), ['email'=> $email]);
+        $data  = array_merge(factory(User::class)->make()->toArray(), ['email' => $email]);
 
         $this->post(route('register'), $data)
             ->assertStatus(400);
@@ -73,34 +78,24 @@ class AuthControllerTest extends TestCase
         $data = factory(User::class)->make()->toArray();
         $this->post(route('register'), $data);
 
-        $this->post(route('login'), array_merge($data, ['email' => 'abcd']))
+        $this->post(route('login'), array_merge($data, ['email' => 'abcd@abc.com']))
             ->assertStatus(401);
     }
 
     /** @test */
     public function testGetUser()
     {
-        $data = factory(User::class)->make()->toArray();
-        $this->post(route('register'), $data);
+        $this->authenticate();
 
-        $token = $this->post(route('login'), $data)
-            ->getData()->access_token;
-
-        $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+        $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
             ->post(route('user'))
             ->assertStatus(200);
-
-        $this->assertEquals($data['email'], $response->getData()->data->email);
     }
 
     /** @test */
     public function testGetUserWithInvalidToken()
     {
-        $data = factory(User::class)->make()->toArray();
-        $this->post(route('register'), $data);
-
-        $this->post(route('login'), $data)
-            ->getData()->access_token;
+        $this->authenticate();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . '1111111'])
             ->post(route('user'))
@@ -110,14 +105,16 @@ class AuthControllerTest extends TestCase
     /** @test */
     public function testLogout()
     {
-        $data = factory(User::class)->make()->toArray();
-        $this->post(route('register'), $data);
+        $this->authenticate();
 
-        $token = $this->post(route('login'), $data)
-            ->getData()->access_token;
-
-        $this->withHeaders(['Authorization' => 'Bearer ' . $token])
-            ->get(route('logout'), $data)
+        $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
+            ->get(route('logout'))
             ->assertStatus(200);
+    }
+
+    private function authenticate()
+    {
+        $this->user  = factory(User::class)->create();
+        $this->token = JWTAuth::fromUser($this->user);
     }
 }

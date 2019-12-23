@@ -71,11 +71,11 @@ class TodoControllerTest extends TestCase
     public function testStoreWithInvalidToken()
     {
         $this->authenticate();
-        $data = factory(Todo::class)->make()->toArray();
-        $invalid_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwO'.
-            'lwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC91c2Vyc1wvbG9naW4iLCJpYXQiOjE1NzY2M'.
-            'zU4NjgsImV4cCI6MTU3NjYzOTQ2OCwibmJmIjoxNTc2NjM1ODY4LCJqdGkiOiJpdVhhN2'.
-            'lmQlBiS0JpWVhMIiwic3ViIjozLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE'.
+        $data          = factory(Todo::class)->make()->toArray();
+        $invalid_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwO' .
+            'lwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC91c2Vyc1wvbG9naW4iLCJpYXQiOjE1NzY2M' .
+            'zU4NjgsImV4cCI6MTU3NjYzOTQ2OCwibmJmIjoxNTc2NjM1ODY4LCJqdGkiOiJpdVhhN2' .
+            'lmQlBiS0JpWVhMIiwic3ViIjozLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE' .
             '1M2ExNGUwYjA0NzU0NmFhIn0.2CTFHA7HZ95B2rC0qottsi6wjiI_m6QGjLkfFmA9oYQ';
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $invalid_token])
@@ -90,7 +90,7 @@ class TodoControllerTest extends TestCase
     public function testShow()
     {
         $this->authenticate();
-        $todo = factory(Todo::class)->make();
+        $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
 
@@ -106,7 +106,7 @@ class TodoControllerTest extends TestCase
     public function testShowWithInvalidId()
     {
         $this->authenticate();
-        $todo = factory(Todo::class)->make();
+        $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
 
@@ -120,7 +120,7 @@ class TodoControllerTest extends TestCase
     {
         $this->withoutExceptionHandling();
         $this->authenticate();
-        $todo = factory(Todo::class)->make();
+        $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
 
@@ -138,7 +138,7 @@ class TodoControllerTest extends TestCase
     public function testUpdateWithInvalidRequest()
     {
         $this->authenticate();
-        $todo = factory(Todo::class)->make();
+        $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
 
@@ -151,7 +151,7 @@ class TodoControllerTest extends TestCase
     public function testUpdateWithInvalidId()
     {
         $this->authenticate();
-        $todo = factory(Todo::class)->make();
+        $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
 
@@ -165,7 +165,7 @@ class TodoControllerTest extends TestCase
     public function testUpdateWithoutAuthorization()
     {
         $this->authenticate();
-        $todo = factory(Todo::class)->make();
+        $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
 
@@ -179,7 +179,7 @@ class TodoControllerTest extends TestCase
     public function testDelete()
     {
         $this->authenticate();
-        $todo = factory(Todo::class)->make();
+        $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
 
@@ -193,7 +193,7 @@ class TodoControllerTest extends TestCase
     public function testDeleteWithInvalidId()
     {
         $this->authenticate();
-        $todo = factory(Todo::class)->make();
+        $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
 
@@ -209,8 +209,8 @@ class TodoControllerTest extends TestCase
      */
     private function authenticate()
     {
-        $this->user  = factory(User::class)->create();
+        $this->user   = factory(User::class)->create();
         $this->userId = $this->user->id;
-        $this->token = JWTAuth::fromUser($this->user);
+        $this->token  = JWTAuth::fromUser($this->user);
     }
 }
