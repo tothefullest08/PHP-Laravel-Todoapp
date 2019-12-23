@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class CreateTodoRequest extends FormRequest
 {
@@ -31,17 +33,10 @@ class CreateTodoRequest extends FormRequest
     }
 
     /**
-     * @return array|void
+     * @param Validator $validator
      */
-    public function messages()
+    public function failedValidation(Validator $validator)
     {
-        return [
-            'title.required'       => 'title field is required',
-            'title.string'         => 'title field must be string',
-            'title.min'            => 'title field must be 3 character minimum',
-            'description.required' => 'title field is required',
-            'description.string'   => 'title field must be string',
-            'description.min'      => 'title field must be 3 character minimum',
-        ];
+        throw new HttpResponseException(response()->json($validator->errors(), 422));
     }
 }

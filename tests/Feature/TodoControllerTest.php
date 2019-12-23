@@ -50,7 +50,7 @@ class TodoControllerTest extends TestCase
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
             ->post(route('store.todo'), $data)
-            ->assertSessionHasErrors();
+            ->assertStatus(422);
     }
 
     /** @test */
@@ -61,7 +61,7 @@ class TodoControllerTest extends TestCase
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
             ->post(route('store.todo'), array_merge($data, ['completed' => 'a']))
-            ->assertStatus(302); // validation failed => 302 error to be fixed
+            ->assertStatus(422);
 
         $this->assertCount(0, Todo::all());
         $this->assertCount(1, User::all());
@@ -144,7 +144,7 @@ class TodoControllerTest extends TestCase
 
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
             ->put(route('update.todo', ['id' => $todo->id]), ['title' => 'f'])
-            ->assertSessionHasErrors();
+            ->assertStatus(422);
     }
 
     /** @test */

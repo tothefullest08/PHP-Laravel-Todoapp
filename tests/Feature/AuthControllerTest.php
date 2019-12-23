@@ -33,7 +33,7 @@ class AuthControllerTest extends TestCase
         $data = factory(User::class)->make()->toArray();
 
         $this->post(route('register'), array_merge($data, ['email' => '111']))
-            ->assertStatus(302);
+            ->assertStatus(422);
     }
 
     /** @test */
@@ -42,7 +42,7 @@ class AuthControllerTest extends TestCase
         $data = factory(User::class)->make()->toArray();
 
         $this->post(route('register'), array_merge($data, ['password' => '1']))
-            ->assertStatus(302);
+            ->assertStatus(422);
     }
 
     /** @test */
@@ -53,7 +53,7 @@ class AuthControllerTest extends TestCase
         $data  = array_merge(factory(User::class)->make()->toArray(), ['email' => $email]);
 
         $this->post(route('register'), $data)
-            ->assertStatus(302);
+            ->assertStatus(422);
 
         $this->assertCount(1, User::all());
     }
