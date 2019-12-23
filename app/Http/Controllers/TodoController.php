@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateTodoRequest;
 use App\Http\Requests\UpdateTodoRequest;
+use App\Http\Responses\BadRequestResponse;
+use App\Http\Responses\CreateResponse;
+use App\Http\Responses\SuccessResponse;
 use App\Todo;
 use Exception;
 use Illuminate\Database\QueryException;
@@ -24,15 +27,15 @@ class TodoController extends Controller
         $this->userId = request()->user()->id;
         $todos        = Todo::query()->where('user_id', $this->userId)->orderBy('id', 'DESC')->get();
 
-        return $this->respondWithSuccess('index page access', 200, $todos);
+        return (new SuccessResponse($todos))->getResult();
     }
 
     /**
      * @param CreateTodoRequest $request
      *
-     * @return JsonResponse
+     * @return CreateResponse|JsonResponse
      */
-    public function store(CreateTodoRequest $request): JsonResponse
+    public function store(CreateTodoRequest $request)
     {
         $this->userId = auth()->user()->id;
 
@@ -44,10 +47,10 @@ class TodoController extends Controller
         try {
             $todo->save();
         } catch (QueryException $e) {
-            return $this->respondwithError('create', 400);
+            return (new BadRequestResponse($todo))->getResult();
         }
 
-        return $this->respondWithSuccess('create', 201, $todo);
+        return (new CreateResponse($todo))->getResult();
     }
 
     /**
@@ -59,7 +62,7 @@ class TodoController extends Controller
     {
         $todo = Todo::query()->where('id', '=', $id)->firstOrFail();
 
-        return $this->respondWithSuccess('detail page access', 200, $todo);
+        return (new SuccessResponse($todo))->getResult();
     }
 
     /**
@@ -73,12 +76,14 @@ class TodoController extends Controller
         $todo = Todo::query()->where('id', '=', $id)->firstOrFail();
 
         try {
-            $todo->fill($request->all())->save();
+            $todo->title       = $request->title;
+            $todo->description = $request->description;
+            $todo->completed   = $request->completed;
         } catch (QueryException $e) {
-            return $this->respondwithError('update', 400);
+            return (new BadRequestResponse($todo))->getResult();
         }
 
-        return $this->respondWithSuccess('update', 200, $todo);
+        return (new SuccessResponse($todo))->getResult();
     }
 
     /**
@@ -94,43 +99,9 @@ class TodoController extends Controller
         try {
             $todo->delete();
         } catch (QueryException $e) {
-            return $this->respondwithError('delete', 400);
+            return (new BadRequestResponse($todo))->getResult();
         }
 
-        return $this->respondwithSuccess('delete', 200, $todo);
-    }
-
-    /**
-     * return adequate Http Status code success
-     *
-     * @param string $message
-     * @param int $status
-     * @param object $data
-     *
-     * @return JsonResponse
-     */
-    private function respondWithSuccess(string $message, int $status, object $data): JsonResponse
-    {
-        return response()->json([
-            'success' => true,
-            'message' => $message . ' succeed',
-            'data'    => $data->toArray()
-        ], $status);
-    }
-
-    /**
-     * return adequate Http Status code for error
-     *
-     * @param string $message
-     * @param int $status
-     *
-     * @return JsonResponse
-     */
-    private function respondWithError(string $message, int $status): JsonResponse
-    {
-        return response()->json([
-            'success' => false,
-            'message' => $message . ' failed',
-        ], $status);
+        return (new SuccessResponse($todo))->getResult();
     }
 }

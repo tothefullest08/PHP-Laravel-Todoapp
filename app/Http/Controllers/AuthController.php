@@ -2,32 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RegisterUserRequest;
+use App\Http\Responses\CreateResponse;
+use App\Http\Responses\SuccessResponse;
+use App\Http\Responses\UnauthorizedResponse;
 use App\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
     /**
-     * @param Request $request
+     * @param RegisterUserRequest $request
      *
      * @return JsonResponse
      */
-    public function register(Request $request): JsonResponse
+    public function register(RegisterUserRequest $request): JsonResponse
     {
-        $validator = $this->validateRequestForRegistration($request->all());
-
-        if ($validator->fails()) {
-            return $this->validateBadResponseForRegistration($validator);
-        }
-
         $user           = new User;
         $user->email    = $request->email;
         $user->password = bcrypt($request->password);
         $user->save();
 
-        return $this->respondWithSuccess('register', 201, $user);
+        return (new CreateResponse($user))->getResult();
     }
 
     /**
@@ -40,7 +36,7 @@ class AuthController extends Controller
         $credentials = request(['email', 'password']);
 
         if (!$token = auth()->attempt($credentials)) {
-            return $this->respondWithError('Unauthorized.', 401);
+            return (new UnauthorizedResponse)->getResult();
         }
 
         return $this->respondWithToken($token);
@@ -53,7 +49,7 @@ class AuthController extends Controller
      */
     public function user(): JsonResponse
     {
-        return $this->respondWithSuccess('Current user access', 200, auth()->user());
+        return (new SuccessResponse(auth()->user()))->getResult();
     }
 
     /**
@@ -66,7 +62,7 @@ class AuthController extends Controller
         $user = auth()->user();
         auth()->logout();
 
-        return $this->respondWithSuccess('Log Out', 200, $user);
+        return (new SuccessResponse($user))->getResult();
     }
 
     /**
@@ -83,69 +79,5 @@ class AuthController extends Controller
             'token_type'   => 'bearer',
             'expires_in'   => auth()->factory()->getTTL() * 60
         ]);
-    }
-
-    /**
-     * return result for validation of user registration
-     *
-     * @param array $data
-     *
-     * @return \Illuminate\Contracts\Validation\Validator|Validator
-     */
-    private function validateRequestForRegistration(array $data)
-    {
-        return Validator::make($data, [
-            'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|max:10'
-        ]);
-    }
-
-    /**
-     * return 400 error response when input data validation failed.
-     *
-     * @param mixed $validator
-     *
-     * @return JsonResponse
-     */
-    private function validateBadResponseForRegistration($validator): JsonResponse
-    {
-        return response()->json([
-            'success' => false,
-            'message' => $validator->messages()
-        ], 400);
-    }
-
-    /**
-     * return adequate Http Status code success
-     *
-     * @param string $message
-     * @param int $status
-     * @param object $data
-     *
-     * @return JsonResponse
-     */
-    private function respondWithSuccess(string $message, int $status, object $data): JsonResponse
-    {
-        return response()->json([
-            'success' => true,
-            'message' => $message . ' succeed',
-            'data'    => $data->toArray()
-        ], $status);
-    }
-
-    /**
-     * return adequate Http Status code for error
-     *
-     * @param string $message
-     * @param int $status
-     *
-     * @return JsonResponse
-     */
-    private function respondWithError(string $message, int $status): JsonResponse
-    {
-        return response()->json([
-            'success' => false,
-            'message' => $message . ' failed',
-        ], $status);
     }
 }
