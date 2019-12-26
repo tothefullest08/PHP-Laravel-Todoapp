@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Core\Dto\User\RegisterUserDto;
+use App\Core\Services\User\RegisterUserUseCase;
+use App\Core\Services\User\LoginUserUseCase;
+use App\Core\Services\User\GetCurrentUserUseCase;
+use App\Core\Services\User\LogoutUserUseCase;
 use App\Http\Requests\RegisterUserRequest;
-use App\Http\Responses\CreateSuccessResponse;
-use App\Http\Responses\RequestSuccessResponse;
-use App\Http\Responses\UnauthorizedResponse;
-use App\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -18,28 +20,25 @@ class UserController extends Controller
      */
     public function register(RegisterUserRequest $request): JsonResponse
     {
-        $user           = new User;
-        $user->email    = $request->getEmail();
-        $user->password = $request->getPassword();
-        $user->save();
+        $dto = new RegisterUserDto($request->getEmail(), $request->getPassword());
+        $useCaseResponse = (new RegisterUserUseCase)->register($dto);
 
-        return (new CreateSuccessResponse($user))->getResult();
+        return $useCaseResponse;
     }
 
     /**
      * Get a JWT via given credentials
      *
+     * @param Request $request
+     *
      * @return JsonResponse
      */
-    public function login(): JsonResponse
+    public function login(Request $request): JsonResponse
     {
-        $credentials = request(['email', 'password']);
+        $dto = new RegisterUserDto($request->input('email'), $request->input('password'));
+        $useCaseResponse = (new LoginUserUseCase)->login($dto);
 
-        if (!$token = auth()->attempt($credentials)) {
-            return (new UnauthorizedResponse)->getResult();
-        }
-
-        return $this->respondWithToken($token);
+        return $useCaseResponse;
     }
 
     /**
@@ -47,9 +46,9 @@ class UserController extends Controller
      *
      * @return JsonResponse
      */
-    public function user(): JsonResponse
+    public function getCurrentUser(): JsonResponse
     {
-        return (new RequestSuccessResponse(auth()->user()))->getResult();
+        return (new GetCurrentUserUseCase)->get();
     }
 
     /**
@@ -59,25 +58,6 @@ class UserController extends Controller
      */
     public function logout(): JsonResponse
     {
-        $user = auth()->user();
-        auth()->logout();
-
-        return (new RequestSuccessResponse($user))->getResult();
-    }
-
-    /**
-     * Get the token array structure.
-     *
-     * @param string $token
-     *
-     * @return JsonResponse
-     */
-    protected function respondWithToken($token): JsonResponse
-    {
-        return response()->json([
-            'access_token' => $token,
-            'token_type'   => 'bearer',
-            'expires_in'   => auth()->factory()->getTTL() * 60
-        ]);
+        return (new LogoutUserUseCase)->logout();
     }
 }

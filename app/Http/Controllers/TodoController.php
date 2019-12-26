@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Core\Dto\CreateTodoDto;
-use App\Core\Dto\IndexTodoDto;
+use App\Core\Dto\Todo\CreateTodoDto;
+use App\Core\Dto\Todo\DeleteTodoDto;
+use App\Core\Dto\Todo\IndexTodoDto;
+use App\Core\Dto\Todo\ShowTodoDto;
+use App\Core\Dto\Todo\UpdateTodoDto;
 use App\Core\Services\Todo\CreateTodoUseCase;
+use App\Core\Services\Todo\DeleteTodoUseCase;
 use App\Core\Services\Todo\IndexTodoUseCase;
+use App\Core\Services\Todo\ShowTodoUseCase;
+use App\Core\Services\Todo\UpdateTodoUseCase;
 use App\Http\Requests\CreateTodoRequest;
 use App\Http\Requests\UpdateTodoRequest;
-use App\Http\Responses\BadRequestResponse;
-use App\Http\Responses\CreateSuccessResponse;
-use App\Http\Responses\RequestSuccessResponse;
-use App\Todo;
-use Exception;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 
 class TodoController extends Controller
@@ -37,11 +37,16 @@ class TodoController extends Controller
     /**
      * @param CreateTodoRequest $request
      *
-     * @return CreateSuccessResponse|JsonResponse
+     * @return JsonResponse
      */
     public function create(CreateTodoRequest $request)
     {
-        $dto = new CreateTodoDto(request()->user()->id, $request->getTitle(), $request->getDescription());
+        $dto = new CreateTodoDto(
+            request()->user()->id,
+            $request->getTitle(),
+            $request->getDescription()
+        );
+
         $useCaseResponse = (new CreateTodoUseCase)->create($dto);
 
         return $useCaseResponse;
@@ -54,9 +59,10 @@ class TodoController extends Controller
      */
     public function show($id): JsonResponse
     {
-        $todo = Todo::query()->where('id', '=', $id)->firstOrFail();
+        $dto = new showTodoDto($id);
+        $useCaseResponse = (new showTodoUseCase)->show($dto);
 
-        return (new RequestSuccessResponse($todo))->getResult();
+        return $useCaseResponse;
     }
 
     /**
@@ -67,35 +73,28 @@ class TodoController extends Controller
      */
     public function update(UpdateTodoRequest $request, $id): JsonResponse
     {
-        $todo = Todo::query()->where('id', '=', $id)->firstOrFail();
+        $dto = new UpdateTodoDto(
+            $id,
+            $request->getTitle(),
+            $request->getDescription(),
+            $request->getCompleted()
+        );
 
-        try {
-            $todo->title       = $request->getTitle();
-            $todo->description = $request->getDescription();
-            $todo->completed   = $request->getCompleted();
-        } catch (QueryException $e) {
-            return (new BadRequestResponse($todo))->getResult();
-        }
+        $useCaseResponse = (new UpdateTodoUseCase)->update($dto);
 
-        return (new RequestSuccessResponse($todo))->getResult();
+        return $useCaseResponse;
     }
 
     /**
      * @param int $id
      *
      * @return JsonResponse
-     * @throws Exception
      */
     public function destroy($id): JsonResponse
     {
-        $todo = Todo::query()->where('id', $id)->firstOrFail();
+        $dto = new deleteTodoDto($id);
+        $useCaseResponse = (new deleteTodoUseCase)->delete($dto);
 
-        try {
-            $todo->delete();
-        } catch (QueryException $e) {
-            return (new BadRequestResponse($todo))->getResult();
-        }
-
-        return (new RequestSuccessResponse($todo))->getResult();
+        return $useCaseResponse;
     }
 }

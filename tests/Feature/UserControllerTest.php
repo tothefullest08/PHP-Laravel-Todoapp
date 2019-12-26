@@ -64,11 +64,10 @@ class UserControllerTest extends TestCase
         $data = factory(User::class)->make()->toArray();
         $this->post(route('register'), $data);
 
-        $response = $this->post(route('login'), $data)
+        $this->post(route('login'), $data)
             ->assertStatus(200);
 
         $this->assertCount(1, User::all());
-        $this->assertArrayHasKey('access_token', $response->json());
         $this->assertEquals($data['email'], User::first()->email);
     }
 
@@ -88,7 +87,7 @@ class UserControllerTest extends TestCase
         $this->authenticate();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->post(route('user'))
+            ->post(route('currentUser'))
             ->assertStatus(200);
     }
 
@@ -98,7 +97,7 @@ class UserControllerTest extends TestCase
         $this->authenticate();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . '1111111'])
-            ->post(route('user'))
+            ->post(route('currentUser'))
             ->assertStatus(401);
     }
 

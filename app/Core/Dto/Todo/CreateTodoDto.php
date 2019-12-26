@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Dto;
+namespace App\Core\Dto\Todo;
 
 class CreateTodoDto
 {
@@ -12,8 +12,8 @@ class CreateTodoDto
 
     public function __construct($userId, $title, $description)
     {
-        $this->userId = $userId;
-        $this->title = $title;
+        $this->userId      = $userId;
+        $this->title       = $title;
         $this->description = $description;
     }
 

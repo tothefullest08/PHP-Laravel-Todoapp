@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Dto;
+namespace App\Core\Dto\Todo;
 
 class IndexTodoDto
 {

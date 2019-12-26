@@ -119,7 +119,6 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testUpdate()
     {
-        $this->withoutExceptionHandling();
         $this->authenticate();
         $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
@@ -128,7 +127,7 @@ class TodoControllerTest extends TestCase
         $data = factory(Todo::class)->make()->toArray();
 
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->put(route('update.todo', ['id' => $todo->id]), $data)
+            ->put(route('update.todo', ['id' => $todo->id]), array_merge($data, ['completed' => 1]))
             ->assertStatus(200);
 
         $count = User::query()->where('id', '=', $todo->user_id)->first()->todos()->count();

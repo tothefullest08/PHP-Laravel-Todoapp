@@ -13,7 +13,7 @@ Route::group([
     ], function () {
         Route::get('/logout', 'UserController@logout')->name('logout');
         Route::post('/refresh', 'UserController@refresh')->name('refresh');
-        Route::post('/current_user', 'UserController@user')->name('user');
+        Route::post('/current_user', 'UserController@getCurrentUser')->name('currentUser');
     });
 });
 
