@@ -5,15 +5,10 @@ namespace Tests\Feature;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserControllerTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected $user;
-
-    protected $token;
 
     /** @test */
     public function testRegister()
@@ -61,7 +56,7 @@ class UserControllerTest extends TestCase
     /** @test */
     public function testGetUser()
     {
-        $this->authenticate();
+        parent::authenticate();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
             ->post(route('currentUser'))
@@ -71,16 +66,10 @@ class UserControllerTest extends TestCase
     /** @test */
     public function testGetUserWithInvalidToken()
     {
-        $this->authenticate();
+        parent::authenticate();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . '1111111'])
             ->post(route('currentUser'))
             ->assertStatus(401);
-    }
-
-    private function authenticate()
-    {
-        $this->user  = factory(User::class)->create();
-        $this->token = JWTAuth::fromUser($this->user);
     }
 }

@@ -5,23 +5,16 @@ namespace Tests\Feature;
 use App\User;
 use App\Todo;
 use Tests\TestCase;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class TodoControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $user;
-
-    protected $userId;
-
-    protected $token;
-
     /** @test */
     public function testIndex()
     {
-        $this->authenticate();
+        parent::authenticate();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
             ->get(route('index.todo'))
@@ -31,8 +24,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testCreate()
     {
-        $this->withoutExceptionHandling();
-        $this->authenticate();
+        parent::authenticate();
         $data = factory(Todo::class)->make()->toArray();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
@@ -46,7 +38,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testCreateWithInvalidTitle()
     {
-        $this->authenticate();
+        parent::authenticate();
         $data = array_merge(factory(Todo::class)->make()->toArray(), ['title' => '']);
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
@@ -57,7 +49,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testCreateWithInvalidCompleted()
     {
-        $this->authenticate();
+        parent::authenticate();
         $data = factory(Todo::class)->make()->toArray();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
@@ -71,7 +63,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testCreateWithInvalidToken()
     {
-        $this->authenticate();
+        parent::authenticate();
         $data          = factory(Todo::class)->make()->toArray();
         $invalid_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwO' .
             'lwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC91c2Vyc1wvbG9naW4iLCJpYXQiOjE1NzY2M' .
@@ -90,7 +82,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testShow()
     {
-        $this->authenticate();
+        parent::authenticate();
         $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
@@ -106,7 +98,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testShowWithInvalidId()
     {
-        $this->authenticate();
+        parent::authenticate();
         $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
@@ -119,7 +111,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testUpdate()
     {
-        $this->authenticate();
+        parent::authenticate();
         $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
@@ -137,7 +129,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testUpdateWithInvalidRequest()
     {
-        $this->authenticate();
+        parent::authenticate();
         $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
@@ -152,8 +144,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testUpdateWithInvalidId()
     {
-        $this->withoutExceptionHandling();
-        $this->authenticate();
+        parent::authenticate();
         $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
@@ -168,7 +159,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testUpdateWithoutAuthorization()
     {
-        $this->authenticate();
+        parent::authenticate();
         $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
@@ -182,7 +173,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testDelete()
     {
-        $this->authenticate();
+        parent::authenticate();
         $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
@@ -197,7 +188,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testDeleteWithInvalidId()
     {
-        $this->authenticate();
+        parent::authenticate();
         $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
         $todo->save();
@@ -207,15 +198,5 @@ class TodoControllerTest extends TestCase
             ->assertStatus(404);
 
         $this->assertEquals(1, $this->user->todos()->count());
-    }
-
-    /**
-     * store current user object & token as properties
-     */
-    private function authenticate()
-    {
-        $this->user   = factory(User::class)->create();
-        $this->userId = $this->user->id;
-        $this->token  = JWTAuth::fromUser($this->user);
     }
 }
