@@ -22,7 +22,7 @@ Route::group([
     'prefix'     => 'todos',
 ], function () {
     Route::get('/', 'TodoController@index')->name('index.todo');
-    Route::post('/', 'TodoController@store')->name('store.todo');
+    Route::post('/', 'TodoController@create')->name('create.todo');
     Route::get('/{id}', 'TodoController@show')->name('show.todo');
     Route::put('/{id}', 'TodoController@update')->name('update.todo');
     Route::delete('/{id}', 'TodoController@destroy')->name('destroy.todo');

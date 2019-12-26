@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterUserRequest;
-use App\Http\Responses\CreateResponse;
+use App\Http\Responses\CreateSuccessResponse;
 use App\Http\Responses\SuccessResponse;
 use App\Http\Responses\UnauthorizedResponse;
 use App\User;
@@ -23,7 +23,7 @@ class UserController extends Controller
         $user->password = $request->getPassword();
         $user->save();
 
-        return (new CreateResponse($user))->getResult();
+        return (new CreateSuccessResponse($user))->getResult();
     }
 
     /**

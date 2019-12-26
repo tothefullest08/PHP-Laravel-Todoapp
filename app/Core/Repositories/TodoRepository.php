@@ -2,18 +2,25 @@
 
 namespace App\Core\Repositories;
 
+use App\Core\Dto\CreateTodoDto;
+use App\Http\Responses\BadRequestResponse;
 use App\Todo;
+use Illuminate\Database\QueryException;
 
 class TodoRepository
 {
-    public function create($userId, $title, $description)
+    public function create(CreateTodoDto $dto)
     {
         $todo = new Todo;
 
-        $todo->user_id = $userId;
-        $todo->title = $title;
-        $todo->description = $description;
+        $todo->user_id = $dto->getUserId();
+        $todo->title = $dto->getTitle();
+        $todo->description = $dto->getDescription();
 
-        return $todo->save();
+        try {
+            return $todo->save();
+        } catch (QueryException $e) {
+            return (new BadRequestResponse($todo))->getResult();
+        }
     }
 }

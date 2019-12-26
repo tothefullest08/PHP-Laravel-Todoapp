@@ -29,14 +29,14 @@ class TodoControllerTest extends TestCase
     }
 
     /** @test */
-    public function testStore()
+    public function testCreate()
     {
         $this->withoutExceptionHandling();
         $this->authenticate();
         $data = factory(Todo::class)->make()->toArray();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->post(route('store.todo'), $data)
+            ->post(route('create.todo'), $data)
             ->assertStatus(201);
 
         $this->assertCount(1, Todo::all());
@@ -44,24 +44,24 @@ class TodoControllerTest extends TestCase
     }
 
     /** @test */
-    public function testStoreWithInvalidTitle()
+    public function testCreateWithInvalidTitle()
     {
         $this->authenticate();
         $data = array_merge(factory(Todo::class)->make()->toArray(), ['title' => '']);
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->post(route('store.todo'), $data)
+            ->post(route('create.todo'), $data)
             ->assertStatus(422);
     }
 
     /** @test */
-    public function testStoreWithInvalidCompleted()
+    public function testCreateWithInvalidCompleted()
     {
         $this->authenticate();
         $data = factory(Todo::class)->make()->toArray();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->post(route('store.todo'), array_merge($data, ['completed' => 'a']))
+            ->post(route('create.todo'), array_merge($data, ['completed' => 'a']))
             ->assertStatus(422);
 
         $this->assertCount(0, Todo::all());
@@ -69,7 +69,7 @@ class TodoControllerTest extends TestCase
     }
 
     /** @test */
-    public function testStoreWithInvalidToken()
+    public function testCreateWithInvalidToken()
     {
         $this->authenticate();
         $data          = factory(Todo::class)->make()->toArray();
@@ -80,7 +80,7 @@ class TodoControllerTest extends TestCase
             '1M2ExNGUwYjA0NzU0NmFhIn0.2CTFHA7HZ95B2rC0qottsi6wjiI_m6QGjLkfFmA9oYQ';
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $invalid_token])
-            ->post(route('store.todo'), $data)
+            ->post(route('create.todo'), $data)
             ->assertStatus(401);
 
         $this->assertCount(0, Todo::all());

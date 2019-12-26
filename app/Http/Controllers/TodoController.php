@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Core\Dto\CreateTodoDto;
+use App\Core\Services\Todo\CreateTodoUseCase;
 use App\Http\Requests\CreateTodoRequest;
 use App\Http\Requests\UpdateTodoRequest;
 use App\Http\Responses\BadRequestResponse;
-use App\Http\Responses\CreateResponse;
+use App\Http\Responses\CreateSuccessResponse;
 use App\Http\Responses\SuccessResponse;
 use App\Todo;
 use Exception;
@@ -33,24 +35,15 @@ class TodoController extends Controller
     /**
      * @param CreateTodoRequest $request
      *
-     * @return CreateResponse|JsonResponse
+     * @return CreateSuccessResponse|JsonResponse
      */
-    public function store(CreateTodoRequest $request)
+    public function create(CreateTodoRequest $request)
     {
-        $this->userId = request()->user()->id;
+        $dto = new CreateTodoDto(request()->user()->id, $request->getTitle(), $request->getDescription());
 
-        $todo              = new Todo;
-        $todo->title       = $request->getTitle();
-        $todo->description = $request->getDescription();
-        $todo->user_id     = $this->userId;
+        $userCaseResponse = (new CreateTodoUseCase)->create($dto);
 
-        try {
-            $todo->save();
-        } catch (QueryException $e) {
-            return (new BadRequestResponse($todo))->getResult();
-        }
-
-        return (new CreateResponse($todo))->getResult();
+        return $userCaseResponse;
     }
 
     /**

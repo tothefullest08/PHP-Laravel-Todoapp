@@ -2,7 +2,7 @@
 
 namespace App\Http\Responses;
 
-class CreateResponse extends BaseResponse
+class CreateSuccessResponse extends BaseResponse
 {
     /**
      * @var string
