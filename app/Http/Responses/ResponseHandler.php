@@ -2,44 +2,77 @@
 
 namespace App\Http\Responses;
 
+use Illuminate\Http\JsonResponse;
+
 class ResponseHandler
 {
-    public static function success($data, $message='success', $statusCode = 200)
+    /**
+     * @param object $data
+     * @param string $message
+     * @param int $statusCode
+     *
+     * @return JsonResponse
+     */
+    public static function success(object $data, string $message = 'success', int $statusCode = 200)
     {
         return response()->json([
-            'data' => $data,
+            'data'    => $data,
             'message' => $message,
         ], $statusCode);
     }
 
-    public static function notFound($data, $message='Not Found')
+    /**
+     * @param object $data
+     * @param string $message
+     *
+     * @return JsonResponse
+     */
+    public static function notFound(object $data, string $message = 'Not Found')
     {
         return response()->json([
-            'initial_data' => $data,
+            'initial_data'  => $data,
             'error_message' => $message,
         ], 404);
     }
 
-    public static function badRequest($data, $message='Bad Request')
+    /**
+     * @param object $data
+     * @param string $message
+     *
+     * @return JsonResponse
+     */
+    public static function badRequest(object $data, string $message = 'Bad Request')
     {
         return response()->json([
-            'initial_data' => $data,
+            'initial_data'  => $data,
             'error_message' => $message,
         ], 400);
     }
 
-    public static function unAuthorized($data, $message='Unauthorized')
+    /**
+     * @param object $data
+     * @param string $message
+     *
+     * @return JsonResponse
+     */
+    public static function unAuthorized(object $data, string $message = 'Unauthorized')
     {
         return response()->json([
-            'initial_data' => $data,
+            'initial_data'  => $data,
             'error_message' => $message,
         ], 401);
     }
 
-    public static function successWithToken($token, $message='success')
+    /**
+     * @param string $token
+     * @param string $message
+     *
+     * @return JsonResponse
+     */
+    public static function successWithToken(string $token, string $message = 'success')
     {
         return response()->json([
-            'data' => [
+            'data'    => [
                 'access_token' => $token,
                 'token_type'   => 'bearer',
                 'expires_in'   => auth()->factory()->getTTL() * 60

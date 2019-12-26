@@ -19,16 +19,11 @@ use Illuminate\Http\JsonResponse;
 class TodoController extends Controller
 {
     /**
-     * @var
-     */
-    protected $userId;
-
-    /**
      * @return JsonResponse
      */
     public function index(): JsonResponse
     {
-        $dto = new IndexTodoDto(request()->user()->id);
+        $dto             = new IndexTodoDto(request()->user()->id);
         $useCaseResponse = (new IndexTodoUseCase)->index($dto);
 
         return $useCaseResponse;
@@ -57,9 +52,9 @@ class TodoController extends Controller
      *
      * @return JsonResponse
      */
-    public function show($id): JsonResponse
+    public function show(int $id): JsonResponse
     {
-        $dto = new showTodoDto($id);
+        $dto             = new showTodoDto($id);
         $useCaseResponse = (new showTodoUseCase)->show($dto);
 
         return $useCaseResponse;
@@ -71,7 +66,7 @@ class TodoController extends Controller
      *
      * @return JsonResponse
      */
-    public function update(UpdateTodoRequest $request, $id): JsonResponse
+    public function update(UpdateTodoRequest $request, int $id): JsonResponse
     {
         $dto = new UpdateTodoDto(
             $id,
@@ -90,9 +85,9 @@ class TodoController extends Controller
      *
      * @return JsonResponse
      */
-    public function destroy($id): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
-        $dto = new deleteTodoDto($id);
+        $dto             = new deleteTodoDto($id);
         $useCaseResponse = (new deleteTodoUseCase)->delete($dto);
 
         return $useCaseResponse;

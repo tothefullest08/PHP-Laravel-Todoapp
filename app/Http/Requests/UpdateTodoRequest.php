@@ -9,12 +9,26 @@ use Illuminate\Http\Request;
 
 class UpdateTodoRequest extends FormRequest
 {
+    /**
+     * @var string
+     */
     private $title;
 
+    /**
+     * @var string
+     */
     private $description;
 
+    /**
+     * @var bool
+     */
     private $completed;
 
+    /**
+     * UpdateTodoRequest constructor.
+     *
+     * @param Request $request
+     */
     public function __construct(Request $request)
     {
         $this->SetTitle($request->input('title'));
@@ -22,31 +36,49 @@ class UpdateTodoRequest extends FormRequest
         $this->SetCompleted($request->input('completed'));
     }
 
+    /**
+     * @param $title
+     */
     public function setTitle($title)
     {
         $this->title = $title;
     }
 
+    /**
+     * @param $description
+     */
     public function setDescription($description)
     {
         $this->description = $description;
     }
 
+    /**
+     * @param $completed
+     */
     public function setCompleted($completed)
     {
         $this->completed = $completed;
     }
 
+    /**
+     * @return string
+     */
     public function getTitle()
     {
         return $this->title;
     }
 
+    /**
+     * @return string
+     */
     public function getDescription()
     {
         return $this->description;
     }
 
+    /**
+     * @return bool
+     */
     public function getCompleted()
     {
         return $this->completed;

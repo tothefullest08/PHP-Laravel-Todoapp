@@ -10,40 +10,63 @@ use Illuminate\Http\Request;
 class RegisterUserRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
+     * @var string
      */
     private $email;
 
+    /**
+     * @var string
+     */
     private $password;
 
+    /**
+     * RegisterUserRequest constructor.
+     *
+     * @param Request $request
+     */
     public function __construct(Request $request)
     {
         $this->setEmail($request->input('email'));
         $this->setPassword(bcrypt($request->input('password')));
     }
 
+    /**
+     * @param $email
+     */
     public function setEmail($email)
     {
         $this->email = $email;
     }
 
+    /**
+     * @param $password
+     */
     public function setPassword($password)
     {
         $this->password = $password;
     }
 
+    /**
+     * @return string
+     */
     public function getEmail()
     {
         return $this->email;
     }
 
+    /**
+     * @return string|null
+     */
     public function getPassword()
     {
         return $this->password;
     }
 
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
     public function authorize()
     {
         return true;

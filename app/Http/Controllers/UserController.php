@@ -20,7 +20,7 @@ class UserController extends Controller
      */
     public function register(RegisterUserRequest $request): JsonResponse
     {
-        $dto = new RegisterUserDto($request->getEmail(), $request->getPassword());
+        $dto             = new RegisterUserDto($request->getEmail(), $request->getPassword());
         $useCaseResponse = (new RegisterUserUseCase)->register($dto);
 
         return $useCaseResponse;
@@ -35,7 +35,7 @@ class UserController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-        $dto = new RegisterUserDto($request->input('email'), $request->input('password'));
+        $dto             = new RegisterUserDto($request->input('email'), $request->input('password'));
         $useCaseResponse = (new LoginUserUseCase)->login($dto);
 
         return $useCaseResponse;

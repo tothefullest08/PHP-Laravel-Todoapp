@@ -9,31 +9,54 @@ use Illuminate\Http\Request;
 
 class CreateTodoRequest extends FormRequest
 {
+    /**
+     * @var string
+     */
     private $title;
 
+    /**
+     * @var string
+     */
     private $description;
 
+    /**
+     * CreateTodoRequest constructor.
+     *
+     * @param Request $request
+     */
     public function __construct(Request $request)
     {
         $this->setTitle($request->input('title'));
         $this->setDescription($request->input('description'));
     }
 
+    /**
+     * @param $title
+     */
     public function setTitle($title)
     {
         $this->title = $title;
     }
 
+    /**
+     * @param $description
+     */
     public function setDescription($description)
     {
         $this->description = $description;
     }
 
+    /**
+     * @return string
+     */
     public function getTitle()
     {
         return $this->title;
     }
 
+    /**
+     * @return string
+     */
     public function getDescription()
     {
         return $this->description;

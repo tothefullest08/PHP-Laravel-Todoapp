@@ -2,19 +2,25 @@
 
 namespace App\Core\Repositories;
 
-use App\Http\Responses\ResponseHandler;
+use Exception;
 use App\Todo;
 use App\Core\Dto\Todo\CreateTodoDto;
 use App\Core\Dto\Todo\DeleteTodoDto;
 use App\Core\Dto\Todo\IndexTodoDto;
 use App\Core\Dto\Todo\ShowTodoDto;
 use App\Core\Dto\Todo\UpdateTodoDto;
-use Exception;
+use App\Http\Responses\ResponseHandler;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 
 class TodoRepository
 {
+    /**
+     * @param IndexTodoDto $dto
+     *
+     * @return JsonResponse
+     */
     public function index(IndexTodoDto $dto)
     {
         try {
@@ -27,6 +33,11 @@ class TodoRepository
         }
     }
 
+    /**
+     * @param CreateTodoDto $dto
+     *
+     * @return JsonResponse
+     */
     public function create(CreateTodoDto $dto)
     {
         $todo = new Todo;
@@ -42,6 +53,11 @@ class TodoRepository
         }
     }
 
+    /**
+     * @param ShowTodoDto $dto
+     *
+     * @return JsonResponse
+     */
     public function show(ShowTodoDto $dto)
     {
         try {
@@ -54,6 +70,11 @@ class TodoRepository
         }
     }
 
+    /**
+     * @param UpdateTodoDto $dto
+     *
+     * @return JsonResponse
+     */
     public function update(UpdateTodoDto $dto)
     {
         try {
@@ -71,6 +92,11 @@ class TodoRepository
         }
     }
 
+    /**
+     * @param DeleteTodoDto $dto
+     *
+     * @return Exception|JsonResponse
+     */
     public function delete(DeleteTodoDto $dto)
     {
         try {
