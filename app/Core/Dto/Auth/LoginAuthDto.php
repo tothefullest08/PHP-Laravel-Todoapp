@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Core\Dto\User;
+namespace App\Core\Dto\Auth;
 
-class RegisterUserDto
+class LoginAuthDto
 {
     /**
      * @var string

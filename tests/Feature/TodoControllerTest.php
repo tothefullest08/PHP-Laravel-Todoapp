@@ -142,14 +142,17 @@ class TodoControllerTest extends TestCase
         $todo->user_id = $this->userId;
         $todo->save();
 
+        $data = factory(Todo::class)->make()->toArray();
+
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->put(route('update.todo', ['id' => $todo->id]), ['title' => 'f'])
+            ->put(route('update.todo', ['id' => $todo->id]), array_merge($data, ['title' => 'f']))
             ->assertStatus(422);
     }
 
     /** @test */
     public function testUpdateWithInvalidId()
     {
+        $this->withoutExceptionHandling();
         $this->authenticate();
         $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
@@ -158,7 +161,7 @@ class TodoControllerTest extends TestCase
         $data = factory(Todo::class)->make()->toArray();
 
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->put(route('update.todo', ['id' => 999]), $data)
+            ->put(route('update.todo', ['id' => 999]), array_merge($data, ['completed' => 1]))
             ->assertStatus(404);
     }
 

@@ -6,16 +6,17 @@ Route::group([
     'prefix' => 'users',
 ], function () {
     Route::post('/register', 'UserController@register')->name('register');
-    Route::post('/login', 'UserController@login')->name('login');
-
-    Route::group([
-        'middleware' => 'auth.jwt'
-    ], function () {
-        Route::get('/logout', 'UserController@logout')->name('logout');
-        Route::post('/refresh', 'UserController@refresh')->name('refresh');
-        Route::post('/current_user', 'UserController@getCurrentUser')->name('currentUser');
-    });
+    Route::post('/refresh', 'UserController@refresh')->name('refresh');
+    Route::post('/current_user', 'UserController@getCurrentUser')->name('currentUser');
 });
+
+Route::group([
+    'prefix' => 'auth',
+], function () {
+    Route::post('/', 'AuthController@login')->name('login');
+    Route::get('/', 'AuthController@logout')->name('logout');
+});
+
 
 Route::group([
     'middleware' => 'auth.jwt',
