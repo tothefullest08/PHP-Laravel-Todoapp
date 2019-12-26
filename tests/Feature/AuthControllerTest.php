@@ -5,15 +5,10 @@ namespace Tests\Feature;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthControllerTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected $user;
-
-    protected $token;
 
     /** @test */
     public function testLogin()
@@ -41,16 +36,10 @@ class AuthControllerTest extends TestCase
     /** @test */
     public function testLogout()
     {
-        $this->authenticate();
+        parent::authenticate();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
             ->get(route('logout'))
             ->assertStatus(200);
-    }
-
-    private function authenticate()
-    {
-        $this->user  = factory(User::class)->create();
-        $this->token = JWTAuth::fromUser($this->user);
     }
 }
