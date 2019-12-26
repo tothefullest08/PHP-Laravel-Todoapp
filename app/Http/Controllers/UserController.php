@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Responses\CreateSuccessResponse;
-use App\Http\Responses\SuccessResponse;
+use App\Http\Responses\RequestSuccessResponse;
 use App\Http\Responses\UnauthorizedResponse;
 use App\User;
 use Illuminate\Http\JsonResponse;
@@ -49,7 +49,7 @@ class UserController extends Controller
      */
     public function user(): JsonResponse
     {
-        return (new SuccessResponse(auth()->user()))->getResult();
+        return (new RequestSuccessResponse(auth()->user()))->getResult();
     }
 
     /**
@@ -62,7 +62,7 @@ class UserController extends Controller
         $user = auth()->user();
         auth()->logout();
 
-        return (new SuccessResponse($user))->getResult();
+        return (new RequestSuccessResponse($user))->getResult();
     }
 
     /**

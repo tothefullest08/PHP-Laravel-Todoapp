@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Core\Dto\CreateTodoDto;
+use App\Core\Dto\IndexTodoDto;
 use App\Core\Services\Todo\CreateTodoUseCase;
+use App\Core\Services\Todo\IndexTodoUseCase;
 use App\Http\Requests\CreateTodoRequest;
 use App\Http\Requests\UpdateTodoRequest;
 use App\Http\Responses\BadRequestResponse;
 use App\Http\Responses\CreateSuccessResponse;
-use App\Http\Responses\SuccessResponse;
+use App\Http\Responses\RequestSuccessResponse;
 use App\Todo;
 use Exception;
 use Illuminate\Database\QueryException;
@@ -26,10 +28,10 @@ class TodoController extends Controller
      */
     public function index(): JsonResponse
     {
-        $this->userId = request()->user()->id;
-        $todos        = Todo::query()->where('user_id', $this->userId)->orderBy('id', 'DESC')->get();
+        $dto = new IndexTodoDto(request()->user()->id);
+        $useCaseResponse = (new IndexTodoUseCase)->index($dto);
 
-        return (new SuccessResponse($todos))->getResult();
+        return $useCaseResponse;
     }
 
     /**
@@ -40,10 +42,9 @@ class TodoController extends Controller
     public function create(CreateTodoRequest $request)
     {
         $dto = new CreateTodoDto(request()->user()->id, $request->getTitle(), $request->getDescription());
+        $useCaseResponse = (new CreateTodoUseCase)->create($dto);
 
-        $userCaseResponse = (new CreateTodoUseCase)->create($dto);
-
-        return $userCaseResponse;
+        return $useCaseResponse;
     }
 
     /**
@@ -55,7 +56,7 @@ class TodoController extends Controller
     {
         $todo = Todo::query()->where('id', '=', $id)->firstOrFail();
 
-        return (new SuccessResponse($todo))->getResult();
+        return (new RequestSuccessResponse($todo))->getResult();
     }
 
     /**
@@ -76,7 +77,7 @@ class TodoController extends Controller
             return (new BadRequestResponse($todo))->getResult();
         }
 
-        return (new SuccessResponse($todo))->getResult();
+        return (new RequestSuccessResponse($todo))->getResult();
     }
 
     /**
@@ -95,6 +96,6 @@ class TodoController extends Controller
             return (new BadRequestResponse($todo))->getResult();
         }
 
-        return (new SuccessResponse($todo))->getResult();
+        return (new RequestSuccessResponse($todo))->getResult();
     }
 }
