@@ -29,13 +29,14 @@ class TodoControllerTest extends TestCase
     }
 
     /** @test */
-    public function testStore()
+    public function testCreate()
     {
+        $this->withoutExceptionHandling();
         $this->authenticate();
         $data = factory(Todo::class)->make()->toArray();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->post(route('store.todo'), $data)
+            ->post(route('create.todo'), $data)
             ->assertStatus(201);
 
         $this->assertCount(1, Todo::all());
@@ -43,32 +44,32 @@ class TodoControllerTest extends TestCase
     }
 
     /** @test */
-    public function testStoreWithInvalidTitle()
+    public function testCreateWithInvalidTitle()
     {
         $this->authenticate();
         $data = array_merge(factory(Todo::class)->make()->toArray(), ['title' => '']);
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->post(route('store.todo'), $data)
-            ->assertSessionHasErrors();
+            ->post(route('create.todo'), $data)
+            ->assertStatus(422);
     }
 
     /** @test */
-    public function testStoreWithInvalidCompleted()
+    public function testCreateWithInvalidCompleted()
     {
         $this->authenticate();
         $data = factory(Todo::class)->make()->toArray();
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->post(route('store.todo'), array_merge($data, ['completed' => 'a']))
-            ->assertStatus(302); // validation failed => 302 error to be fixed
+            ->post(route('create.todo'), array_merge($data, ['completed' => 'a']))
+            ->assertStatus(422);
 
         $this->assertCount(0, Todo::all());
         $this->assertCount(1, User::all());
     }
 
     /** @test */
-    public function testStoreWithInvalidToken()
+    public function testCreateWithInvalidToken()
     {
         $this->authenticate();
         $data          = factory(Todo::class)->make()->toArray();
@@ -79,7 +80,7 @@ class TodoControllerTest extends TestCase
             '1M2ExNGUwYjA0NzU0NmFhIn0.2CTFHA7HZ95B2rC0qottsi6wjiI_m6QGjLkfFmA9oYQ';
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $invalid_token])
-            ->post(route('store.todo'), $data)
+            ->post(route('create.todo'), $data)
             ->assertStatus(401);
 
         $this->assertCount(0, Todo::all());
@@ -118,7 +119,6 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testUpdate()
     {
-        $this->withoutExceptionHandling();
         $this->authenticate();
         $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
@@ -127,7 +127,7 @@ class TodoControllerTest extends TestCase
         $data = factory(Todo::class)->make()->toArray();
 
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->put(route('update.todo', ['id' => $todo->id]), $data)
+            ->put(route('update.todo', ['id' => $todo->id]), array_merge($data, ['completed' => 1]))
             ->assertStatus(200);
 
         $count = User::query()->where('id', '=', $todo->user_id)->first()->todos()->count();
@@ -142,14 +142,17 @@ class TodoControllerTest extends TestCase
         $todo->user_id = $this->userId;
         $todo->save();
 
+        $data = factory(Todo::class)->make()->toArray();
+
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->put(route('update.todo', ['id' => $todo->id]), ['title' => 'f'])
-            ->assertSessionHasErrors();
+            ->put(route('update.todo', ['id' => $todo->id]), array_merge($data, ['title' => 'f']))
+            ->assertStatus(422);
     }
 
     /** @test */
     public function testUpdateWithInvalidId()
     {
+        $this->withoutExceptionHandling();
         $this->authenticate();
         $todo          = factory(Todo::class)->make();
         $todo->user_id = $this->userId;
@@ -158,7 +161,7 @@ class TodoControllerTest extends TestCase
         $data = factory(Todo::class)->make()->toArray();
 
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->put(route('update.todo', ['id' => 999]), $data)
+            ->put(route('update.todo', ['id' => 999]), array_merge($data, ['completed' => 1]))
             ->assertStatus(404);
     }
 

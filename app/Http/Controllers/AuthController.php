@@ -2,54 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\RegisterUserRequest;
-use App\Http\Responses\CreateResponse;
-use App\Http\Responses\SuccessResponse;
-use App\Http\Responses\UnauthorizedResponse;
-use App\User;
+use App\Core\Dto\Auth\LoginAuthDto;
+use App\Core\Services\Auth\LoginAuthUseCase;
+use App\Core\Services\Auth\LogoutAuthUseCase;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
     /**
-     * @param RegisterUserRequest $request
-     *
-     * @return JsonResponse
+     * AuthController constructor.
      */
-    public function register(RegisterUserRequest $request): JsonResponse
+    public function __construct()
     {
-        $user           = new User;
-        $user->email    = $request->email;
-        $user->password = bcrypt($request->password);
-        $user->save();
-
-        return (new CreateResponse($user))->getResult();
+        $this->middleware('auth.jwt', ['except' => ['login']]);
     }
 
     /**
-     * Get a JWT via given credentials
+     * @param Request $request
      *
      * @return JsonResponse
      */
-    public function login(): JsonResponse
+    public function login(Request $request): JsonResponse
     {
-        $credentials = request(['email', 'password']);
+        $dto             = new LoginAuthDto($request->input('email'), $request->input('password'));
+        $useCaseResponse = (new LoginAuthUseCase)->login($dto);
 
-        if (!$token = auth()->attempt($credentials)) {
-            return (new UnauthorizedResponse)->getResult();
-        }
-
-        return $this->respondWithToken($token);
-    }
-
-    /**
-     * Get the authenticated User
-     *
-     * @return JsonResponse
-     */
-    public function user(): JsonResponse
-    {
-        return (new SuccessResponse(auth()->user()))->getResult();
+        return $useCaseResponse;
     }
 
     /**
@@ -59,25 +38,6 @@ class AuthController extends Controller
      */
     public function logout(): JsonResponse
     {
-        $user = auth()->user();
-        auth()->logout();
-
-        return (new SuccessResponse($user))->getResult();
-    }
-
-    /**
-     * Get the token array structure.
-     *
-     * @param string $token
-     *
-     * @return JsonResponse
-     */
-    protected function respondWithToken($token): JsonResponse
-    {
-        return response()->json([
-            'access_token' => $token,
-            'token_type'   => 'bearer',
-            'expires_in'   => auth()->factory()->getTTL() * 60
-        ]);
+        return (new LogoutAuthUseCase)->logout();
     }
 }

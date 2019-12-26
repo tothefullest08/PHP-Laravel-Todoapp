@@ -16,59 +16,15 @@ class AuthControllerTest extends TestCase
     protected $token;
 
     /** @test */
-    public function testRegister()
-    {
-        $data = factory(User::class)->make()->toArray();
-
-        $this->post(route('register'), $data)
-            ->assertStatus(201);
-
-        $this->assertCount(1, User::all());
-        $this->assertEquals($data['email'], User::first()->email);
-    }
-
-    /** @test */
-    public function testRegisterWithInvalidEmail()
-    {
-        $data = factory(User::class)->make()->toArray();
-
-        $this->post(route('register'), array_merge($data, ['email' => '111']))
-            ->assertStatus(302);
-    }
-
-    /** @test */
-    public function testRegisterWithinValidPassword()
-    {
-        $data = factory(User::class)->make()->toArray();
-
-        $this->post(route('register'), array_merge($data, ['password' => '1']))
-            ->assertStatus(302);
-    }
-
-    /** @test */
-    public function testRegisterWithExistingEmail()
-    {
-        $user  = factory(User::class)->create();
-        $email = $user->email;
-        $data  = array_merge(factory(User::class)->make()->toArray(), ['email' => $email]);
-
-        $this->post(route('register'), $data)
-            ->assertStatus(302);
-
-        $this->assertCount(1, User::all());
-    }
-
-    /** @test */
     public function testLogin()
     {
         $data = factory(User::class)->make()->toArray();
         $this->post(route('register'), $data);
 
-        $response = $this->post(route('login'), $data)
+        $this->post(route('login'), $data)
             ->assertStatus(200);
 
         $this->assertCount(1, User::all());
-        $this->assertArrayHasKey('access_token', $response->json());
         $this->assertEquals($data['email'], User::first()->email);
     }
 
@@ -79,26 +35,6 @@ class AuthControllerTest extends TestCase
         $this->post(route('register'), $data);
 
         $this->post(route('login'), array_merge($data, ['email' => 'abcd@abc.com']))
-            ->assertStatus(401);
-    }
-
-    /** @test */
-    public function testGetUser()
-    {
-        $this->authenticate();
-
-        $this->withHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->post(route('user'))
-            ->assertStatus(200);
-    }
-
-    /** @test */
-    public function testGetUserWithInvalidToken()
-    {
-        $this->authenticate();
-
-        $this->withHeaders(['Authorization' => 'Bearer ' . '1111111'])
-            ->post(route('user'))
             ->assertStatus(401);
     }
 
