@@ -37,11 +37,11 @@ class TodoController extends Controller
      */
     public function store(CreateTodoRequest $request)
     {
-        $this->userId = auth()->user()->id;
+        $this->userId = request()->user()->id;
 
         $todo              = new Todo;
-        $todo->title       = $request->title;
-        $todo->description = $request->description;
+        $todo->title       = $request->getTitle();
+        $todo->description = $request->getDescription();
         $todo->user_id     = $this->userId;
 
         try {
@@ -76,9 +76,9 @@ class TodoController extends Controller
         $todo = Todo::query()->where('id', '=', $id)->firstOrFail();
 
         try {
-            $todo->title       = $request->title;
-            $todo->description = $request->description;
-            $todo->completed   = $request->completed;
+            $todo->title       = $request->getTitle();
+            $todo->description = $request->getDescription();
+            $todo->completed   = $request->getCompleted();
         } catch (QueryException $e) {
             return (new BadRequestResponse($todo))->getResult();
         }

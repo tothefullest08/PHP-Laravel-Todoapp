@@ -31,6 +31,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testStore()
     {
+        $this->withoutExceptionHandling();
         $this->authenticate();
         $data = factory(Todo::class)->make()->toArray();
 

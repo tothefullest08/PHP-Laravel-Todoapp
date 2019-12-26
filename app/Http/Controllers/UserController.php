@@ -9,7 +9,7 @@ use App\Http\Responses\UnauthorizedResponse;
 use App\User;
 use Illuminate\Http\JsonResponse;
 
-class AuthController extends Controller
+class UserController extends Controller
 {
     /**
      * @param RegisterUserRequest $request
@@ -19,8 +19,8 @@ class AuthController extends Controller
     public function register(RegisterUserRequest $request): JsonResponse
     {
         $user           = new User;
-        $user->email    = $request->email;
-        $user->password = bcrypt($request->password);
+        $user->email    = $request->getEmail();
+        $user->password = $request->getPassword();
         $user->save();
 
         return (new CreateResponse($user))->getResult();

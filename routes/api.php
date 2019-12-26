@@ -5,15 +5,15 @@ use Illuminate\Support\Facades\Route;
 Route::group([
     'prefix' => 'users',
 ], function () {
-    Route::post('/register', 'AuthController@register')->name('register');
-    Route::post('/login', 'AuthController@login')->name('login');
+    Route::post('/register', 'UserController@register')->name('register');
+    Route::post('/login', 'UserController@login')->name('login');
 
     Route::group([
         'middleware' => 'auth.jwt'
     ], function () {
-        Route::get('/logout', 'AuthController@logout')->name('logout');
-        Route::post('/refresh', 'AuthController@refresh')->name('refresh');
-        Route::post('/current_user', 'AuthController@user')->name('user');
+        Route::get('/logout', 'UserController@logout')->name('logout');
+        Route::post('/refresh', 'UserController@refresh')->name('refresh');
+        Route::post('/current_user', 'UserController@user')->name('user');
     });
 });
 

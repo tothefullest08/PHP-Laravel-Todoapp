@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Request;
 
 class RegisterUserRequest extends FormRequest
 {
@@ -13,6 +14,36 @@ class RegisterUserRequest extends FormRequest
      *
      * @return bool
      */
+    private $email;
+
+    private $password;
+
+    public function __construct(Request $request)
+    {
+        $this->setEmail($request->input('email'));
+        $this->setPassword(bcrypt($request->input('password')));
+    }
+
+    public function setEmail($email)
+    {
+        $this->email = $email;
+    }
+
+    public function setPassword($password)
+    {
+        $this->password = $password;
+    }
+
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
     public function authorize()
     {
         return true;
