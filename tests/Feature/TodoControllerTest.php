@@ -165,6 +165,7 @@ class TodoControllerTest extends TestCase
             ->assertStatus(404);
     }
 
+    /** @test */
     public function testUpdateWithoutAuthorization()
     {
         $this->authenticate();
@@ -193,6 +194,7 @@ class TodoControllerTest extends TestCase
         $this->assertEquals(0, $this->user->todos()->count());
     }
 
+    /** @test */
     public function testDeleteWithInvalidId()
     {
         $this->authenticate();
