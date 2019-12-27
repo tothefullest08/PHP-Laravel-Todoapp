@@ -24,7 +24,7 @@ class TodoRepository
     public function index(IndexTodoDto $dto)
     {
         try {
-            $todos = Todo::query()->where('user_id', '=', $dto->getUserId())->orderBy('id', 'DESC')->get();
+            $todos = Todo::query()->where('user_id', $dto->getUserId())->orderBy('id', 'DESC')->get();
             return ResponseHandler::success($todos);
         } catch (ModelNotFoundException $e) {
             return ResponseHandler::notFound($dto);
