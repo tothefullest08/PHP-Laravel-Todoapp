@@ -20,13 +20,14 @@ class AuthController extends Controller
 
     /**
      * @param Request $request
+     * @param LoginAuthUseCase $useCase
      *
      * @return JsonResponse
      */
-    public function login(Request $request): JsonResponse
+    public function login(Request $request, LoginAuthUseCase $useCase): JsonResponse
     {
-        $dto             = new LoginAuthDto($request->input('email'), $request->input('password'));
-        $useCaseResponse = (new LoginAuthUseCase)->login($dto);
+        $dto             = (new LoginAuthDto)->setEmail($request->input('email'))->setPassword($request->input('password'));
+        $useCaseResponse = $useCase->execute($dto);
 
         return $useCaseResponse;
     }
@@ -34,10 +35,12 @@ class AuthController extends Controller
     /**
      * Log the user out (Invalidate the token).
      *
+     * @param LogoutAuthUseCase $useCase
+     *
      * @return JsonResponse
      */
-    public function logout(): JsonResponse
+    public function logout(LogoutAuthUseCase $useCase): JsonResponse
     {
-        return (new LogoutAuthUseCase)->logout();
+        return $useCase->execute();
     }
 }

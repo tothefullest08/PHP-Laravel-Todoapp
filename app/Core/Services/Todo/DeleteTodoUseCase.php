@@ -3,19 +3,18 @@
 namespace App\Core\Services\Todo;
 
 use App\Core\Dto\Todo\DeleteTodoDto;
-use App\Core\Repositories\TodoRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
-class DeleteTodoUseCase
+class DeleteTodoUseCase extends TodoUseCase
 {
     /**
      * @param DeleteTodoDto $dto
      *
      * @return Exception|JsonResponse
      */
-    public function delete(DeleteTodoDto $dto)
+    public function execute(DeleteTodoDto $dto)
     {
-        return (new TodoRepository)->delete($dto);
+        return $this->repo->delete($dto);
     }
 }

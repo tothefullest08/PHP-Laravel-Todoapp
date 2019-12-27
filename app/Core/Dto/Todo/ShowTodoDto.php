@@ -10,13 +10,14 @@ class ShowTodoDto
     private $id;
 
     /**
-     * ShowTodoDto constructor.
-     *
      * @param int $id
+     *
+     * @return ShowTodoDto
      */
-    public function __construct(int $id)
+    public function setId(int $id): ShowTodoDto
     {
         $this->id = $id;
+        return $this;
     }
 
     /**

@@ -10,20 +10,21 @@ class DeleteTodoDto
     private $id;
 
     /**
-     * DeleteTodoDto constructor.
-     *
-     * @param int $id
-     */
-    public function __construct(int $id)
-    {
-        $this->id = $id;
-    }
-
-    /**
      * @return int
      */
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return DeleteTodoDto
+     */
+    public function setId(int $id): DeleteTodoDto
+    {
+        $this->id = $id;
+        return $this;
     }
 }

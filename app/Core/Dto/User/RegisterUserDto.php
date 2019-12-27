@@ -15,15 +15,25 @@ class RegisterUserDto
     private $password;
 
     /**
-     * LoginAuthDto constructor.
+     * @param string $email
      *
-     * @param String $email
-     * @param String $password
+     * @return RegisterUserDto
      */
-    public function __construct(String $email, String $password)
+    public function setEmail(string $email): RegisterUserDto
     {
-        $this->email    = $email;
+        $this->email = $email;
+        return $this;
+    }
+
+    /**
+     * @param string $password
+     *
+     * @return RegisterUserDto
+     */
+    public function setPassword(string $password): RegisterUserDto
+    {
         $this->password = $password;
+        return $this;
     }
 
     /**

@@ -25,19 +25,47 @@ class UpdateTodoDto
     private $completed;
 
     /**
-     * UpdateTodoDto constructor.
-     *
      * @param int $id
-     * @param string $title
-     * @param string $description
-     * @param bool $completed
+     *
+     * @return UpdateTodoDto
      */
-    public function __construct(int $id, string $title, string $description, bool $completed)
+    public function setId(int $id): UpdateTodoDto
     {
-        $this->id          = $id;
-        $this->title       = $title;
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @param string $title
+     *
+     * @return UpdateTodoDto
+     */
+    public function setTitle(string $title): UpdateTodoDto
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    /**
+     * @param string $description
+     *
+     * @return UpdateTodoDto
+     */
+    public function setDescription(string $description): UpdateTodoDto
+    {
         $this->description = $description;
-        $this->completed   = $completed;
+        return $this;
+    }
+
+    /**
+     * @param bool $completed
+     *
+     * @return UpdateTodoDto
+     */
+    public function setCompleted(bool $completed): UpdateTodoDto
+    {
+        $this->completed = $completed;
+        return $this;
     }
 
     /**

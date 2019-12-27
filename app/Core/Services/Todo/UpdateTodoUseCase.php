@@ -3,18 +3,17 @@
 namespace App\Core\Services\Todo;
 
 use App\Core\Dto\Todo\UpdateTodoDto;
-use App\Core\Repositories\TodoRepository;
 use Illuminate\Http\JsonResponse;
 
-class UpdateTodoUseCase
+class UpdateTodoUseCase extends TodoUseCase
 {
     /**
      * @param UpdateTodoDto $dto
      *
      * @return JsonResponse
      */
-    public function update(UpdateTOdoDto $dto)
+    public function execute(UpdateTOdoDto $dto)
     {
-        return (new TodoRepository)->update($dto);
+        return $this->repo->update($dto);
     }
 }

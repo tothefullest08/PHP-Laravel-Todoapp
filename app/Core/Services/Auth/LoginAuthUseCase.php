@@ -1,21 +1,19 @@
 <?php
 
-
 namespace App\Core\Services\Auth;
 
 use App\Core\Dto\Auth\LoginAuthDto;
-use App\Core\Repositories\AuthRepository;
 use Illuminate\Http\JsonResponse;
 
-class LoginAuthUseCase
+class LoginAuthUseCase extends AuthUseCase
 {
     /**
      * @param LoginAuthDto $dto
      *
      * @return JsonResponse
      */
-    public function login(LoginAuthDto $dto)
+    public function execute(LoginAuthDto $dto)
     {
-        return (new AuthRepository)->login($dto);
+        return $this->repo->login($dto);
     }
 }

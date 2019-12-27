@@ -3,18 +3,17 @@
 namespace App\Core\Services\Todo;
 
 use App\Core\Dto\Todo\ShowTodoDto;
-use App\Core\Repositories\TodoRepository;
 use Illuminate\Http\JsonResponse;
 
-class ShowTodoUseCase
+class ShowTodoUseCase extends TodoUseCase
 {
     /**
      * @param ShowTodoDto $dto
      *
      * @return JsonResponse
      */
-    public function show(ShowTodoDto $dto)
+    public function execute(ShowTodoDto $dto)
     {
-        return (new TodoRepository)->show($dto);
+        return $this->repo->show($dto);
     }
 }

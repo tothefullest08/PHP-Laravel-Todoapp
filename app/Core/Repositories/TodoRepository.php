@@ -61,7 +61,7 @@ class TodoRepository
     public function show(ShowTodoDto $dto)
     {
         try {
-            $todo = Todo::query()->where('id', '=', $dto->getId())->firstOrFail();
+            $todo = Todo::query()->where('id', $dto->getId())->firstOrFail();
             return ResponseHandler::success($todo);
         } catch (ModelNotFoundException $e) {
             return ResponseHandler::notFound($dto);
@@ -78,7 +78,7 @@ class TodoRepository
     public function update(UpdateTodoDto $dto)
     {
         try {
-            $todo = Todo::query()->where('id', '=', $dto->getId())->firstOrFail();
+            $todo = Todo::query()->where('id', $dto->getId())->firstOrFail();
 
             $todo->title       = $dto->getTitle();
             $todo->description = $dto->getDescription();
@@ -100,7 +100,7 @@ class TodoRepository
     public function delete(DeleteTodoDto $dto)
     {
         try {
-            $todo = Todo::query()->where('id', '=', $dto->getId())->firstOrFail();
+            $todo = Todo::query()->where('id', $dto->getId())->firstOrFail();
             $todo->delete();
             return ResponseHandler::success($todo);
         } catch (ModelNotFoundException $e) {

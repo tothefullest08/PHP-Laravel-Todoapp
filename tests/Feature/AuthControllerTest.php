@@ -13,6 +13,7 @@ class AuthControllerTest extends TestCase
     /** @test */
     public function testLogin()
     {
+        $this->withoutExceptionHandling();
         $data = factory(User::class)->make()->toArray();
         $this->post(route('register'), $data);
 

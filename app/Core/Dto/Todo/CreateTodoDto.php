@@ -20,17 +20,36 @@ class CreateTodoDto
     private $description;
 
     /**
-     * CreateTodoDto constructor.
-     *
      * @param int $userId
-     * @param string $title
-     * @param string $description
+     *
+     * @return CreateTodoDto
      */
-    public function __construct(int $userId, string $title, string $description)
+    public function setUserId(int $userId): CreateTodoDto
     {
-        $this->userId      = $userId;
-        $this->title       = $title;
+        $this->userId = $userId;
+        return $this;
+    }
+
+    /**
+     * @param string $title
+     *
+     * @return CreateTodoDto
+     */
+    public function setTitle(string $title): CreateTodoDto
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    /**
+     * @param string $description
+     *
+     * @return CreateTodoDto
+     */
+    public function setDescription(string $description): CreateTodoDto
+    {
         $this->description = $description;
+        return $this;
     }
 
     /**

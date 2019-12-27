@@ -19,43 +19,45 @@ use Illuminate\Http\JsonResponse;
 class TodoController extends Controller
 {
     /**
+     * @param IndexTodoUseCase $useCase
+     *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(IndexTodoUseCase $useCase): JsonResponse
     {
-        $dto             = new IndexTodoDto(request()->user()->id);
-        $useCaseResponse = (new IndexTodoUseCase)->index($dto);
+        $dto             = (new IndexTodoDto())->setUserId(request()->user()->id);
+        $useCaseResponse = $useCase->execute($dto);
 
         return $useCaseResponse;
     }
 
     /**
      * @param CreateTodoRequest $request
+     * @param CreateTodoUseCase $useCase
      *
      * @return JsonResponse
      */
-    public function create(CreateTodoRequest $request)
+    public function create(CreateTodoRequest $request, CreateTodoUseCase $useCase)
     {
-        $dto = new CreateTodoDto(
-            request()->user()->id,
-            $request->getTitle(),
-            $request->getDescription()
-        );
-
-        $useCaseResponse = (new CreateTodoUseCase)->create($dto);
+        $dto             = (new CreateTodoDto())
+            ->setUserId(request()->user()->id)
+            ->setTitle($request->input('title'))
+            ->setDescription($request->input('description'));
+        $useCaseResponse = $useCase->execute($dto);
 
         return $useCaseResponse;
     }
 
     /**
      * @param int $id
+     * @param ShowTodoUseCase $useCase
      *
      * @return JsonResponse
      */
-    public function show(int $id): JsonResponse
+    public function show(int $id, showTodoUseCase $useCase): JsonResponse
     {
-        $dto             = new showTodoDto($id);
-        $useCaseResponse = (new showTodoUseCase)->show($dto);
+        $dto             = (new showTodoDto())->setId($id);
+        $useCaseResponse = $useCase->execute($dto);
 
         return $useCaseResponse;
     }
@@ -63,32 +65,33 @@ class TodoController extends Controller
     /**
      * @param UpdateTodoRequest $request
      * @param int $id
+     * @param UpdateTodoUseCase $useCase
      *
      * @return JsonResponse
      */
-    public function update(UpdateTodoRequest $request, int $id): JsonResponse
+    public function update(UpdateTodoRequest $request, int $id, UpdateTodoUseCase $useCase): JsonResponse
     {
-        $dto = new UpdateTodoDto(
-            $id,
-            $request->getTitle(),
-            $request->getDescription(),
-            $request->getCompleted()
-        );
+        $dto = (new UpdateTodoDto)
+            ->setId($id)
+            ->setTitle($request->input('title'))
+            ->setDescription($request->input('description'))
+            ->setCompleted($request->input('completed'));
 
-        $useCaseResponse = (new UpdateTodoUseCase)->update($dto);
+        $useCaseResponse = $useCase->execute($dto);
 
         return $useCaseResponse;
     }
 
     /**
      * @param int $id
+     * @param DeleteTodoUseCase $useCase
      *
      * @return JsonResponse
      */
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id, DeleteTodoUseCase $useCase): JsonResponse
     {
-        $dto             = new deleteTodoDto($id);
-        $useCaseResponse = (new deleteTodoUseCase)->delete($dto);
+        $dto             = (new deleteTodoDto)->setId($id);
+        $useCaseResponse = $useCase->execute($dto);
 
         return $useCaseResponse;
     }

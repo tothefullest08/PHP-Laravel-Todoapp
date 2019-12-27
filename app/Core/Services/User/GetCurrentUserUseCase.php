@@ -2,16 +2,15 @@
 
 namespace App\Core\Services\User;
 
-use App\Core\Repositories\UserRepository;
 use Illuminate\Http\JsonResponse;
 
-class getCurrentUserUseCase
+class getCurrentUserUseCase extends UserUseCase
 {
     /**
      * @return JsonResponse
      */
-    public function get()
+    public function execute()
     {
-        return (new UserRepository)->getCurrentUser();
+        return $this->repo->getCurrentUser();
     }
 }

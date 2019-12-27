@@ -3,18 +3,17 @@
 namespace App\Core\Services\User;
 
 use App\Core\Dto\User\RegisterUserDto;
-use App\Core\Repositories\UserRepository;
 use Illuminate\Http\JsonResponse;
 
-class RegisterUserUseCase
+class RegisterUserUseCase extends UserUseCase
 {
     /**
      * @param RegisterUserDto $dto
      *
      * @return JsonResponse
      */
-    public function register(RegisterUserDto $dto)
+    public function execute(RegisterUserDto $dto)
     {
-        return (new UserRepository)->register($dto);
+        return $this->repo->register($dto);
     }
 }

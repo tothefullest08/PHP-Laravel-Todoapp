@@ -17,13 +17,14 @@ class UserController extends Controller
 
     /**
      * @param RegisterUserRequest $request
+     * @param RegisterUserUseCase $useCase
      *
      * @return JsonResponse
      */
-    public function register(RegisterUserRequest $request): JsonResponse
+    public function register(RegisterUserRequest $request, RegisterUserUseCase $useCase): JsonResponse
     {
-        $dto             = new RegisterUserDto($request->getEmail(), $request->getPassword());
-        $useCaseResponse = (new RegisterUserUseCase)->register($dto);
+        $dto             = (new RegisterUserDto)->setEmail($request->getEmail())->setPassword($request->getPassword());
+        $useCaseResponse = $useCase->execute($dto);
 
         return $useCaseResponse;
     }
@@ -31,10 +32,12 @@ class UserController extends Controller
     /**
      * Get the authenticated User
      *
+     * @param GetCurrentUserUseCase $useCase
+     *
      * @return JsonResponse
      */
-    public function getCurrentUser(): JsonResponse
+    public function getCurrentUser(GetCurrentUserUseCase $useCase): JsonResponse
     {
-        return (new GetCurrentUserUseCase)->get();
+        return $useCase->execute();
     }
 }
