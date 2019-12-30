@@ -14,6 +14,9 @@ use App\Core\Services\Todo\ShowTodoUseCase;
 use App\Core\Services\Todo\UpdateTodoUseCase;
 use App\Http\Requests\CreateTodoRequest;
 use App\Http\Requests\UpdateTodoRequest;
+use App\Http\Responses\ResponseHandler;
+use Doctrine\DBAL\Query\QueryException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 
 class TodoController extends Controller
@@ -26,9 +29,18 @@ class TodoController extends Controller
     public function index(IndexTodoUseCase $useCase): JsonResponse
     {
         $dto             = (new IndexTodoDto())->setUserId(request()->user()->id);
-        $useCaseResponse = $useCase->execute($dto);
 
-        return $useCaseResponse;
+        try {
+            $useCaseResponse = $useCase->execute($dto);
+        } catch (QueryException $e) {
+            return ResponseHandler::badRequest($dto, 'Database error');
+        }
+
+        if ($useCaseResponse === null) {
+            return ResponseHandler::notFound($dto);
+        }
+
+        return ResponseHandler::success($useCaseResponse);
     }
 
     /**
@@ -43,9 +55,14 @@ class TodoController extends Controller
             ->setUserId(request()->user()->id)
             ->setTitle($request->input('title'))
             ->setDescription($request->input('description'));
-        $useCaseResponse = $useCase->execute($dto);
 
-        return $useCaseResponse;
+        try {
+            $useCaseResponse = $useCase->execute($dto);
+        } catch (QueryException $e) {
+            return ResponseHandler::badRequest($dto, 'Database error');
+        }
+
+        return ResponseHandler::success($useCaseResponse, 'create success', 201);
     }
 
     /**
@@ -57,9 +74,16 @@ class TodoController extends Controller
     public function show(int $id, showTodoUseCase $useCase): JsonResponse
     {
         $dto             = (new showTodoDto())->setId($id);
-        $useCaseResponse = $useCase->execute($dto);
 
-        return $useCaseResponse;
+        try {
+            $useCaseResponse = $useCase->execute($dto);
+        } catch (ModelNotFoundException $e) {
+            return ResponseHandler::notFound($dto);
+        } catch (QueryException $e) {
+            return ResponseHandler::badRequest($dto, 'Database error');
+        }
+
+        return ResponseHandler::success($useCaseResponse);
     }
 
     /**
@@ -77,9 +101,15 @@ class TodoController extends Controller
             ->setDescription($request->input('description'))
             ->setCompleted($request->input('completed'));
 
-        $useCaseResponse = $useCase->execute($dto);
+        try {
+            $useCaseResponse = $useCase->execute($dto);
+        } catch (ModelNotFoundException $e) {
+            return ResponseHandler::notFound($dto);
+        } catch (QueryException $e) {
+            return ResponseHandler::badRequest($dto, 'Database error');
+        }
 
-        return $useCaseResponse;
+        return ResponseHandler::success($useCaseResponse);
     }
 
     /**
@@ -91,8 +121,15 @@ class TodoController extends Controller
     public function destroy(int $id, DeleteTodoUseCase $useCase): JsonResponse
     {
         $dto             = (new deleteTodoDto)->setId($id);
-        $useCaseResponse = $useCase->execute($dto);
 
-        return $useCaseResponse;
+        try {
+            $useCaseResponse = $useCase->execute($dto);
+        } catch (ModelNotFoundException $e) {
+            return ResponseHandler::notFound($dto);
+        } catch (QueryException $e) {
+            return ResponseHandler::badRequest($dto, 'Database error');
+        }
+
+        return ResponseHandler::success($useCaseResponse);
     }
 }

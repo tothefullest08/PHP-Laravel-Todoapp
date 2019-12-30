@@ -3,14 +3,14 @@
 namespace App\Core\Services\Todo;
 
 use App\Core\Dto\Todo\CreateTodoDto;
-use Illuminate\Http\JsonResponse;
+use App\Todo;
 
 class CreateTodoUseCase extends TodoUseCase
 {
     /**
      * @param CreateTodoDto $dto
      *
-     * @return JsonResponse
+     * @return Todo
      */
     public function execute(CreateTodoDto $dto)
     {

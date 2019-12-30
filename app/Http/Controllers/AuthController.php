@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Core\Dto\Auth\LoginAuthDto;
 use App\Core\Services\Auth\LoginAuthUseCase;
 use App\Core\Services\Auth\LogoutAuthUseCase;
+use App\Http\Responses\ResponseHandler;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -26,10 +28,17 @@ class AuthController extends Controller
      */
     public function login(Request $request, LoginAuthUseCase $useCase): JsonResponse
     {
-        $dto             = (new LoginAuthDto)->setEmail($request->input('email'))->setPassword($request->input('password'));
+        $dto = (new LoginAuthDto)
+            ->setEmail($request->input('email'))
+            ->setPassword($request->input('password'));
+
         $useCaseResponse = $useCase->execute($dto);
 
-        return $useCaseResponse;
+        if ($useCaseResponse === null) {
+            return ResponseHandler::notFound($dto);
+        }
+
+        return ResponseHandler::success($useCaseResponse);
     }
 
     /**
@@ -41,6 +50,12 @@ class AuthController extends Controller
      */
     public function logout(LogoutAuthUseCase $useCase): JsonResponse
     {
-        return $useCase->execute();
+        try {
+            $useCaseResponse = $useCase->execute();
+        } catch (QueryException $e) {
+            return ResponseHandler::badRequest(auth()->user(), 'Database error');
+        }
+
+        return ResponseHandler::success($useCaseResponse);
     }
 }

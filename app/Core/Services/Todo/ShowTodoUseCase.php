@@ -3,14 +3,16 @@
 namespace App\Core\Services\Todo;
 
 use App\Core\Dto\Todo\ShowTodoDto;
-use Illuminate\Http\JsonResponse;
+use App\Todo;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class ShowTodoUseCase extends TodoUseCase
 {
     /**
      * @param ShowTodoDto $dto
      *
-     * @return JsonResponse
+     * @return Todo|Builder|Model
      */
     public function execute(ShowTodoDto $dto)
     {

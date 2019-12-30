@@ -3,41 +3,40 @@
 namespace App\Core\Repositories;
 
 use App\Core\Dto\Auth\LoginAuthDto;
-use App\Http\Responses\ResponseHandler;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\QueryException;
-use Illuminate\Http\JsonResponse;
 
 class AuthRepository
 {
     /**
      * @param LoginAuthDto $dto
      *
-     * @return JsonResponse
+     * @return mixed|null
      */
     public function login(LoginAuthDto $dto)
     {
         $token = auth()->attempt([
-            'email' => $dto->getEmail(),
+            'email'    => $dto->getEmail(),
             'password' => $dto->getPassword()
         ]);
 
         if (!$token) {
-            return ResponseHandler::unAuthorized($dto);
+            return null;
         }
-        return ResponseHandler::successWithToken($token);
+        return $token;
     }
 
     /**
-     * @return JsonResponse
+     * @return Authenticatable
      */
     public function logout()
     {
         $user = auth()->user();
         try {
             auth()->logout();
-            return ResponseHandler::success($user);
+            return $user;
         } catch (QueryException $e) {
-            return ResponseHandler::badRequest($user, 'Database error');
+            throw new QueryException;
         }
     }
 }

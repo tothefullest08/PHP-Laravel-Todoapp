@@ -9,71 +9,73 @@ use App\Core\Dto\Todo\DeleteTodoDto;
 use App\Core\Dto\Todo\IndexTodoDto;
 use App\Core\Dto\Todo\ShowTodoDto;
 use App\Core\Dto\Todo\UpdateTodoDto;
-use App\Http\Responses\ResponseHandler;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Collection;
 
 class TodoRepository
 {
     /**
      * @param IndexTodoDto $dto
      *
-     * @return JsonResponse
+     * @return Todo[]|Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Query\Builder[]|Collection
      */
     public function index(IndexTodoDto $dto)
     {
         try {
             $todos = Todo::query()->where('user_id', $dto->getUserId())->orderBy('id', 'DESC')->get();
-            return ResponseHandler::success($todos);
-        } catch (ModelNotFoundException $e) {
-            return ResponseHandler::notFound($dto);
+            if ($todos === null) {
+                return null;
+            }
+            return $todos;
         } catch (QueryException $e) {
-            return ResponseHandler::badRequest($dto, 'Database error');
+            throw new QueryException;
         }
     }
 
     /**
      * @param CreateTodoDto $dto
      *
-     * @return JsonResponse
+     * @return Todo
      */
     public function create(CreateTodoDto $dto)
     {
-        $todo = new Todo;
+        $todo              = new Todo;
         $todo->user_id     = $dto->getUserId();
         $todo->title       = $dto->getTitle();
         $todo->description = $dto->getDescription();
 
         try {
             $todo->save();
-            return ResponseHandler::success($todo, 'create success', 201);
+            return $todo;
         } catch (QueryException $e) {
-            return ResponseHandler::badRequest($dto, 'Database error');
+            throw new QueryException;
         }
     }
 
     /**
      * @param ShowTodoDto $dto
      *
-     * @return JsonResponse
+     * @return Todo|Builder|Model
      */
     public function show(ShowTodoDto $dto)
     {
         try {
             $todo = Todo::query()->where('id', $dto->getId())->firstOrFail();
-            return ResponseHandler::success($todo);
+            return $todo;
         } catch (ModelNotFoundException $e) {
-            return ResponseHandler::notFound($dto);
+            throw new ModelNotFoundException;
         } catch (QueryException $e) {
-            return ResponseHandler::badRequest($dto, 'Database error');
+            throw new QueryException;
         }
     }
 
     /**
      * @param UpdateTodoDto $dto
      *
-     * @return JsonResponse
+     * @return Todo|Builder|Model
      */
     public function update(UpdateTodoDto $dto)
     {
@@ -84,31 +86,30 @@ class TodoRepository
             $todo->description = $dto->getDescription();
             $todo->completed   = $dto->getCompleted();
             $todo->save();
-            return ResponseHandler::success($todo);
+            return $todo;
         } catch (ModelNotFoundException $e) {
-            return ResponseHandler::notFound($dto);
+            throw new ModelNotFoundException;
         } catch (QueryException $e) {
-            return ResponseHandler::badRequest($dto, 'Database error');
+            throw new QueryException;
         }
     }
 
     /**
      * @param DeleteTodoDto $dto
      *
-     * @return Exception|JsonResponse
+     * @return Todo|Builder|Model
+     * @throws Exception
      */
     public function delete(DeleteTodoDto $dto)
     {
         try {
             $todo = Todo::query()->where('id', $dto->getId())->firstOrFail();
             $todo->delete();
-            return ResponseHandler::success($todo);
+            return $todo;
         } catch (ModelNotFoundException $e) {
-            return ResponseHandler::notFound($dto);
+            throw new ModelNotFoundException;
         } catch (QueryException $e) {
-            return ResponseHandler::badRequest($dto, 'Database error');
-        } catch (Exception $e) {
-            return new Exception('Error', 500);
+            throw new QueryException;
         }
     }
 }

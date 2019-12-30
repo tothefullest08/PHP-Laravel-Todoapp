@@ -6,6 +6,8 @@ use App\Core\Dto\User\RegisterUserDto;
 use App\Core\Services\User\RegisterUserUseCase;
 use App\Core\Services\User\GetCurrentUserUseCase;
 use App\Http\Requests\RegisterUserRequest;
+use App\Http\Responses\ResponseHandler;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
@@ -23,10 +25,17 @@ class UserController extends Controller
      */
     public function register(RegisterUserRequest $request, RegisterUserUseCase $useCase): JsonResponse
     {
-        $dto             = (new RegisterUserDto)->setEmail($request->getEmail())->setPassword($request->getPassword());
-        $useCaseResponse = $useCase->execute($dto);
+        $dto             = (new RegisterUserDto)
+            ->setEmail($request->getEmail())
+            ->setPassword($request->getPassword());
 
-        return $useCaseResponse;
+        try {
+            $useCaseResponse = $useCase->execute($dto);
+        } catch (QueryException $e) {
+            return ResponseHandler::badRequest($dto, 'Database error');
+        }
+
+        return ResponseHandler::success($useCaseResponse);
     }
 
     /**
@@ -38,6 +47,8 @@ class UserController extends Controller
      */
     public function getCurrentUser(GetCurrentUserUseCase $useCase): JsonResponse
     {
-        return $useCase->execute();
+        $useCaseResponse = $useCase->execute();
+
+        return ResponseHandler::success($useCaseResponse);
     }
 }
