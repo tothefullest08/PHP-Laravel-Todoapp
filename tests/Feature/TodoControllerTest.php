@@ -4,12 +4,12 @@ namespace Tests\Feature;
 
 use App\User;
 use App\Todo;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class TodoControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseMigrations;
 
     /** @test */
     public function testIndex()
@@ -137,7 +137,7 @@ class TodoControllerTest extends TestCase
         $data = factory(Todo::class)->make()->toArray();
 
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->put(route('update.todo', ['id' => $todo->id]), array_merge($data, ['title' => 'f']))
+            ->put(route('update.todo', ['id' => $todo->id]), array_merge($data, ['title' => 'a']))
             ->assertStatus(422);
     }
 

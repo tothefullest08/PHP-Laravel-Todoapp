@@ -12,7 +12,6 @@ use App\Core\Dto\Todo\UpdateTodoDto;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 
 class TodoRepository
@@ -20,19 +19,15 @@ class TodoRepository
     /**
      * @param IndexTodoDto $dto
      *
-     * @return Todo[]|Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Query\Builder[]|Collection
+     * @return Todo[]|Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Query\Builder[]|Collection|null
      */
     public function index(IndexTodoDto $dto)
     {
-        try {
-            $todos = Todo::query()->where('user_id', $dto->getUserId())->orderBy('id', 'DESC')->get();
-            if ($todos === null) {
-                return null;
-            }
-            return $todos;
-        } catch (QueryException $e) {
-            throw new QueryException;
+        $todos = Todo::query()->where('user_id', $dto->getUserId())->orderBy('id', 'DESC')->get();
+        if ($todos === null) {
+            return null;
         }
+        return $todos;
     }
 
     /**
@@ -47,12 +42,8 @@ class TodoRepository
         $todo->title       = $dto->getTitle();
         $todo->description = $dto->getDescription();
 
-        try {
-            $todo->save();
-            return $todo;
-        } catch (QueryException $e) {
-            throw new QueryException;
-        }
+        $todo->save();
+        return $todo;
     }
 
     /**
@@ -67,8 +58,6 @@ class TodoRepository
             return $todo;
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException;
-        } catch (QueryException $e) {
-            throw new QueryException;
         }
     }
 
@@ -89,8 +78,6 @@ class TodoRepository
             return $todo;
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException;
-        } catch (QueryException $e) {
-            throw new QueryException;
         }
     }
 
@@ -108,8 +95,6 @@ class TodoRepository
             return $todo;
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException;
-        } catch (QueryException $e) {
-            throw new QueryException;
         }
     }
 }

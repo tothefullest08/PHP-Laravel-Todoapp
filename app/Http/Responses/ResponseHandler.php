@@ -7,13 +7,13 @@ use Illuminate\Http\JsonResponse;
 class ResponseHandler
 {
     /**
-     * @param object $data
+     * @param object|string $data
      * @param string $message
      * @param int $statusCode
      *
      * @return JsonResponse
      */
-    public static function success(object $data, string $message = 'success', int $statusCode = 200)
+    public static function success($data, string $message = 'success', int $statusCode = 200)
     {
         return response()->json([
             'data'    => $data,

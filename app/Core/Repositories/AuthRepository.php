@@ -4,7 +4,6 @@ namespace App\Core\Repositories;
 
 use App\Core\Dto\Auth\LoginAuthDto;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\QueryException;
 
 class AuthRepository
 {
@@ -32,11 +31,8 @@ class AuthRepository
     public function logout()
     {
         $user = auth()->user();
-        try {
-            auth()->logout();
-            return $user;
-        } catch (QueryException $e) {
-            throw new QueryException;
-        }
+        auth()->logout();
+
+        return $user;
     }
 }

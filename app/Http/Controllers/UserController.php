@@ -26,8 +26,8 @@ class UserController extends Controller
     public function register(RegisterUserRequest $request, RegisterUserUseCase $useCase): JsonResponse
     {
         $dto             = (new RegisterUserDto)
-            ->setEmail($request->getEmail())
-            ->setPassword($request->getPassword());
+            ->setEmail($request->input('email'))
+            ->setPassword(bcrypt($request->input('password')));
 
         try {
             $useCaseResponse = $useCase->execute($dto);
@@ -35,7 +35,7 @@ class UserController extends Controller
             return ResponseHandler::badRequest($dto, 'Database error');
         }
 
-        return ResponseHandler::success($useCaseResponse);
+        return ResponseHandler::success($useCaseResponse, 'register success', 201);
     }
 
     /**

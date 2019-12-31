@@ -16,6 +16,7 @@ use App\Http\Requests\CreateTodoRequest;
 use App\Http\Requests\UpdateTodoRequest;
 use App\Http\Responses\ResponseHandler;
 use Doctrine\DBAL\Query\QueryException;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 
@@ -117,6 +118,7 @@ class TodoController extends Controller
      * @param DeleteTodoUseCase $useCase
      *
      * @return JsonResponse
+     * @throws Exception
      */
     public function destroy(int $id, DeleteTodoUseCase $useCase): JsonResponse
     {

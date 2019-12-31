@@ -3,14 +3,14 @@
 namespace App\Core\Services\User;
 
 use App\Core\Dto\User\RegisterUserDto;
-use Illuminate\Http\JsonResponse;
+use App\User;
 
 class RegisterUserUseCase extends UserUseCase
 {
     /**
      * @param RegisterUserDto $dto
      *
-     * @return JsonResponse
+     * @return User
      */
     public function execute(RegisterUserDto $dto)
     {

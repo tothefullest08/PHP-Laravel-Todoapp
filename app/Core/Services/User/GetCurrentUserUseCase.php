@@ -2,12 +2,12 @@
 
 namespace App\Core\Services\User;
 
-use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 class getCurrentUserUseCase extends UserUseCase
 {
     /**
-     * @return JsonResponse
+     * @return Authenticatable
      */
     public function execute()
     {

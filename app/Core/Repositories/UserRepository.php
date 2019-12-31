@@ -5,7 +5,6 @@ namespace App\Core\Repositories;
 use App\User;
 use App\Core\Dto\User\RegisterUserDto;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\QueryException;
 
 class UserRepository
 {
@@ -20,12 +19,8 @@ class UserRepository
         $user->email    = $dto->getEmail();
         $user->password = $dto->getPassword();
 
-        try {
-            $user->save();
-            return $user;
-        } catch (QueryException $e) {
-            throw new QueryException;
-        }
+        $user->save();
+        return $user;
     }
 
     /**
