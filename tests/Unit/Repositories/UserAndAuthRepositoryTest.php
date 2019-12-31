@@ -27,6 +27,7 @@ class UserAndAuthRepositoryTest extends TestCase
         $this->authRepo = (new AuthRepository);
     }
 
+    /** @test */
     public function testRegister()
     {
         $dto = $this->userAndAuthFactory->validDataForRegister();
@@ -35,6 +36,7 @@ class UserAndAuthRepositoryTest extends TestCase
         $this->assertCount(1, User::all());
     }
 
+    /** @test */
     public function testLogin()
     {
         $dto = $this->userAndAuthFactory->validDataForLogin();
@@ -43,6 +45,7 @@ class UserAndAuthRepositoryTest extends TestCase
         $this->assertSame(gettype($response), 'string');
     }
 
+    /** @test */
     public function testLoginFailed()
     {
         $dto = $this->userAndAuthFactory->InvalidDataForLogin();

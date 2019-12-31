@@ -11,11 +11,17 @@ class UserAndAuthDtoFactory
 {
     private $faker;
 
+    /**
+     * UserAndAuthDtoFactory constructor.
+     */
     public function __construct()
     {
         $this->faker = Factory::create();
     }
 
+    /**
+     * @return RegisterUserDto
+     */
     public function validDataForRegister()
     {
         return (new RegisterUserDto)
@@ -23,6 +29,9 @@ class UserAndAuthDtoFactory
             ->setPassword($this->faker->unique()->password(8, 10));
     }
 
+    /**
+     * @return LoginAuthDto
+     */
     public function validDataForLogin()
     {
         $userDto = $this->validDataForRegister();
@@ -36,6 +45,9 @@ class UserAndAuthDtoFactory
             ->setPassword($password);
     }
 
+    /**
+     * @return LoginAuthDto
+     */
     public function InvalidDataForLogin()
     {
         $userDto = $this->validDataForRegister();

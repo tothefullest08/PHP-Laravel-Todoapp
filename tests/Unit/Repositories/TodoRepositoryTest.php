@@ -25,6 +25,7 @@ class TodoRepositoryTest extends TestCase
         $this->repo = (new TodoRepository);
     }
 
+    /** @test */
     public function testIndex()
     {
         $dto = $this->factory->validDataForIndex($this->userId);
@@ -33,6 +34,7 @@ class TodoRepositoryTest extends TestCase
         $this->assertCount(0, Todo::all());
     }
 
+    /** @test */
     public function testCreate()
     {
         $dto = $this->factory->validDataForCreate($this->userId);
@@ -41,6 +43,7 @@ class TodoRepositoryTest extends TestCase
         $this->assertCount(1, Todo::all());
     }
 
+    /** @test */
     public function testShow()
     {
         $todo = $this->createTodo();
@@ -53,6 +56,7 @@ class TodoRepositoryTest extends TestCase
         $this->assertEquals($todo->id, $response->id);
     }
 
+    /** @test */
     public function testUpdate()
     {
         $todo = $this->createTodo();
@@ -65,6 +69,7 @@ class TodoRepositoryTest extends TestCase
         $this->assertNotEquals($todo->description, $response->description);
     }
 
+    /** @test */
     public function testDelete()
     {
         $todo = $this->createTodo();

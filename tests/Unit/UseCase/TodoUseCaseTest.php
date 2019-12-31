@@ -81,7 +81,7 @@ class TodoUseCaseTest extends TestCase
         $todo = $this->createTodo();
 
         $dto = $this->factory->validDataForUpdate($todo->id);
-        $response = $this->updateTodoUseCase->execute($dto);
+        $this->updateTodoUseCase->execute($dto);
 
         $this->assertEquals($dto->getId(), $this->userId);
     }

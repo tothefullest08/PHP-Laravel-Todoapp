@@ -13,16 +13,29 @@ class TodoDtoFactory
 {
     private $faker;
 
+    /**
+     * TodoDtoFactory constructor.
+     */
     public function __construct()
     {
         $this->faker = Factory::create();
     }
 
+    /**
+     * @param $userId
+     *
+     * @return IndexTodoDto
+     */
     public function validDataForIndex($userId)
     {
         return (new IndexTodoDto)->setUserId($userId);
     }
 
+    /**
+     * @param $userId
+     *
+     * @return CreateTodoDto
+     */
     public function validDataForCreate($userId)
     {
         return (new CreateTodoDto)
@@ -31,19 +44,21 @@ class TodoDtoFactory
             ->setDescription($this->faker->paragraph);
     }
 
-    public function InvalidDataForCreate($userId)
-    {
-        return (new CreateTodoDto)
-            ->setUserId($userId)
-            ->setTitle(null)
-            ->setDescription(null);
-    }
-
+    /**
+     * @param $id
+     *
+     * @return ShowTodoDto
+     */
     public function validDataForShow($id)
     {
         return (new ShowTodoDto)->setId($id);
     }
 
+    /**
+     * @param $id
+     *
+     * @return UpdateTodoDto
+     */
     public function validDataForUpdate($id)
     {
         return (new UpdateTodoDto)
@@ -53,6 +68,11 @@ class TodoDtoFactory
             ->setCompleted($this->faker->boolean);
     }
 
+    /**
+     * @param $id
+     *
+     * @return DeleteTodoDto
+     */
     public function validDataForDelete($id)
     {
         return (new DeleteTodoDto)

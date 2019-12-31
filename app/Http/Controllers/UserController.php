@@ -12,6 +12,9 @@ use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
+    /**
+     * UserController constructor.
+     */
     public function __construct()
     {
         $this->middleware('auth.jwt', ['except' => ['register']]);
