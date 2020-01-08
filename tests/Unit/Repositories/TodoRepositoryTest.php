@@ -28,55 +28,61 @@ class TodoRepositoryTest extends TestCase
     /** @test */
     public function testIndex()
     {
-        $dto = $this->factory->validDataForIndex($this->userId);
-        $this->repo->index($dto);
+        $todos =[];
+        for ($i = 0; $i < 5; $i++) {
+            $todos[] = $this->createTodo();
+        }
 
-        $this->assertCount(0, Todo::all());
+        $dto = $this->factory->validDataForIndex($this->userId);
+        $response = $this->repo->index($dto);
+
+        $this->assertCount(count($todos), $response);
     }
 
     /** @test */
     public function testCreate()
     {
         $dto = $this->factory->validDataForCreate($this->userId);
-        $this->repo->create($dto);
+        $todo = $this->repo->create($dto);
 
         $this->assertCount(1, Todo::all());
+        $this->assertEquals($dto->getTitle(), $todo->getTitle());
+        $this->assertEquals($dto->getDescription(), $todo->getDescription());
     }
 
     /** @test */
     public function testShow()
     {
         $todo = $this->createTodo();
-        $dto = $this->factory->validDataForShow($todo->id);
-        $response = $this->repo->show($dto);
+        $dto = $this->factory->validDataForShow($todo->getId());
+        $returnedTodo = $this->repo->show($dto);
 
-        $this->assertEquals($todo->user_id, $response->user_id);
-        $this->assertEquals($todo->title, $response->title);
-        $this->assertEquals($todo->description, $response->description);
-        $this->assertEquals($todo->id, $response->id);
+        $this->assertEquals($todo->getId(), $returnedTodo->getId());
+        $this->assertEquals($todo->getUserId(), $returnedTodo->getUserId());
+        $this->assertEquals($todo->getTitle(), $returnedTodo->getTitle());
+        $this->assertEquals($todo->getDescription(), $returnedTodo->getDescription());
     }
 
     /** @test */
     public function testUpdate()
     {
         $todo = $this->createTodo();
-        $dto = $this->factory->validDataForUpdate($todo->id);
-        $response = $this->repo->update($dto);
+        $dto = $this->factory->validDataForUpdate($todo->getId());
+        $updatedTodo = $this->repo->update($dto);
 
-        $this->assertEquals($todo->id, $response->id);
-        $this->assertEquals($todo->user_id, $response->user_id);
-        $this->assertNotEquals($todo->title, $response->title);
-        $this->assertNotEquals($todo->description, $response->description);
+        $this->assertEquals($todo->getId(), $updatedTodo->getId());
+        $this->assertEquals($todo->getUserId(), $updatedTodo->getUserId());
+        $this->assertNotEquals($todo->getTitle(), $updatedTodo->getTitle());
+        $this->assertNotEquals($todo->getDescription(), $updatedTodo->getDescription());
     }
 
     /** @test */
     public function testDelete()
     {
         $todo = $this->createTodo();
-
         $this->assertCount(1, Todo::all());
 
-        $dto = $this->factory->validDataForDelete($todo->id);
+        $dto = $this->factory->validDataForDelete($todo->getId());
         $this->repo->delete($dto);
 
         $this->assertCount(0, Todo::all());

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Core\Entities\Todo as TodoEntity;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -46,5 +47,20 @@ class Todo extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return TodoEntity
+     */
+    public function toEntity()
+    {
+        $todo = new TodoEntity();
+
+        /** @noinspection PhpUndefinedFieldInspection */
+        return $todo->setId($this->id)
+            ->setUserId($this->user_id)
+            ->setTitle($this->title)
+            ->setDescription($this->description)
+            ->setCompleted($this->completed);
     }
 }

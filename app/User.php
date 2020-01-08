@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Core\Entities\User as UserEntity;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -80,5 +81,17 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    /**
+     * @return UserEntity
+     */
+    public function toEntity()
+    {
+        $user = new UserEntity();
+
+        return $user->setId($this->id)
+            ->setEmail($this->email)
+            ->setPassword($this->password);
     }
 }

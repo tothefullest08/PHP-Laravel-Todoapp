@@ -10,7 +10,6 @@ use App\Core\Dto\Todo\IndexTodoDto;
 use App\Core\Dto\Todo\ShowTodoDto;
 use App\Core\Dto\Todo\UpdateTodoDto;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 
@@ -33,7 +32,7 @@ class TodoRepository
     /**
      * @param CreateTodoDto $dto
      *
-     * @return Todo
+     * @return \App\Core\Entities\Todo
      */
     public function create(CreateTodoDto $dto)
     {
@@ -41,21 +40,21 @@ class TodoRepository
         $todo->user_id     = $dto->getUserId();
         $todo->title       = $dto->getTitle();
         $todo->description = $dto->getDescription();
-
         $todo->save();
-        return $todo;
+
+        return $todo->toEntity();
     }
 
     /**
      * @param ShowTodoDto $dto
      *
-     * @return Todo|Builder|Model
+     * @return \App\Core\Entities\Todo
      */
     public function show(ShowTodoDto $dto)
     {
         try {
             $todo = Todo::query()->where('id', $dto->getId())->firstOrFail();
-            return $todo;
+            return $todo->toEntity();
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException;
         }
@@ -64,7 +63,7 @@ class TodoRepository
     /**
      * @param UpdateTodoDto $dto
      *
-     * @return Todo|Builder|Model
+     * @return \App\Core\Entities\Todo
      */
     public function update(UpdateTodoDto $dto)
     {
@@ -75,7 +74,7 @@ class TodoRepository
             $todo->description = $dto->getDescription();
             $todo->completed   = $dto->getCompleted();
             $todo->save();
-            return $todo;
+            return $todo->toEntity();
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException;
         }
@@ -84,7 +83,7 @@ class TodoRepository
     /**
      * @param DeleteTodoDto $dto
      *
-     * @return Todo|Builder|Model
+     * @return \App\Core\Entities\Todo
      * @throws Exception
      */
     public function delete(DeleteTodoDto $dto)
@@ -92,7 +91,7 @@ class TodoRepository
         try {
             $todo = Todo::query()->where('id', $dto->getId())->firstOrFail();
             $todo->delete();
-            return $todo;
+            return $todo->toEntity();
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException;
         }

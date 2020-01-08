@@ -3,7 +3,7 @@
 namespace App\Core\Services\Todo;
 
 use App\Core\Dto\Todo\CreateTodoDto;
-use App\Todo;
+use App\Core\Entities\Todo;
 
 class CreateTodoUseCase extends TodoUseCase
 {

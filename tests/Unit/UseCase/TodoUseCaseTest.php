@@ -48,20 +48,20 @@ class TodoUseCaseTest extends TestCase
     public function testIndex()
     {
         $dto = $this->factory->validDataForIndex($this->userId);
-        $response = $this->indexTodoUseCase->execute($dto);
+        $todos = $this->indexTodoUseCase->execute($dto);
 
-        $this->assertNotNull($response);
+        $this->assertNotNull($todos);
     }
 
     /** @test */
     public function testCreate()
     {
         $dto = $this->factory->validDataForCreate($this->userId);
-        $response = $this->createTodoUseCase->execute($dto);
+        $todo = $this->createTodoUseCase->execute($dto);
 
-        $this->assertEquals($dto->getTitle(), $response->title);
-        $this->assertEquals($dto->getDescription(), $response->description);
-        $this->assertEquals($dto->getUserId(), $response->user_id);
+        $this->assertEquals($dto->getTitle(), $todo->getTitle());
+        $this->assertEquals($dto->getDescription(), $todo->getDescription());
+        $this->assertEquals($dto->getUserId(), $todo->getUserId());
     }
 
     /** @test */
@@ -69,10 +69,12 @@ class TodoUseCaseTest extends TestCase
     {
         $todo = $this->createTodo();
 
-        $dto = $this->factory->validDataForShow($todo->id);
-        $this->showTodoUseCase->execute($dto);
+        $dto = $this->factory->validDataForShow($todo->getId());
+        $returnedTodo = $this->showTodoUseCase->execute($dto);
 
-        $this->assertEquals($dto->getId(), $this->userId);
+        $this->assertEquals($todo->getId(), $returnedTodo->getId());
+        $this->assertEquals($todo->getTitle(), $returnedTodo->getTitle());
+        $this->assertEquals($todo->getDescription(), $returnedTodo->getDescription());
     }
 
     /** @test */
@@ -80,10 +82,12 @@ class TodoUseCaseTest extends TestCase
     {
         $todo = $this->createTodo();
 
-        $dto = $this->factory->validDataForUpdate($todo->id);
-        $this->updateTodoUseCase->execute($dto);
+        $dto = $this->factory->validDataForUpdate($todo->getId());
+        $newTodo = $this->updateTodoUseCase->execute($dto);
 
-        $this->assertEquals($dto->getId(), $this->userId);
+        $this->assertEquals($todo->getId(), $newTodo->getId());
+        $this->assertNotEquals($todo->getTitle(), $newTodo->getTitle());
+        $this->assertNotEquals($todo->getDescription(), $newTodo->getDescription());
     }
 
     /** @test */
@@ -91,7 +95,7 @@ class TodoUseCaseTest extends TestCase
     {
         $todo = $this->createTodo();
 
-        $dto = $this->factory->validDataForDelete($todo->id);
+        $dto = $this->factory->validDataForDelete($todo->getId());
         $this->deleteTodoUseCase->execute($dto);
 
         $this->assertCount(0, Todo::all());
