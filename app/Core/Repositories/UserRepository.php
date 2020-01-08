@@ -11,7 +11,7 @@ class UserRepository
     /**
      * @param RegisterUserDto $dto
      *
-     * @return User
+     * @return \App\Core\Entities\User
      */
     public function register(RegisterUserDto $dto)
     {
@@ -20,7 +20,7 @@ class UserRepository
         $user->password = $dto->getPassword();
 
         $user->save();
-        return $user;
+        return $user->toEntity();
     }
 
     /**
@@ -28,6 +28,6 @@ class UserRepository
      */
     public function getCurrentUser()
     {
-        return auth()->user();
+        return auth()->user()->toEntity();
     }
 }

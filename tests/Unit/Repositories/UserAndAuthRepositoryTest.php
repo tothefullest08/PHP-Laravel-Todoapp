@@ -31,26 +31,27 @@ class UserAndAuthRepositoryTest extends TestCase
     public function testRegister()
     {
         $dto = $this->userAndAuthFactory->validDataForRegister();
-        $this->userRepo->register($dto);
+        $user = $this->userRepo->register($dto);
 
         $this->assertCount(1, User::all());
+        $this->assertEquals($dto->getEmail(), $user->getEmail());
     }
 
     /** @test */
     public function testLogin()
     {
         $dto = $this->userAndAuthFactory->validDataForLogin();
-        $response = $this->authRepo->login($dto);
+        $token = $this->authRepo->login($dto);
 
-        $this->assertSame(gettype($response), 'string');
+        $this->assertSame(gettype($token), 'string');
     }
 
     /** @test */
     public function testLoginFailed()
     {
         $dto = $this->userAndAuthFactory->InvalidDataForLogin();
-        $response = $this->authRepo->login($dto);
+        $token = $this->authRepo->login($dto);
 
-        $this->assertNull($response);
+        $this->assertNull($token);
     }
 }

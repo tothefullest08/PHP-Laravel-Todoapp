@@ -39,7 +39,7 @@ class UserAndAuthUseCaseTest extends TestCase
         $user = $this->registerUserUseCase->execute($dto);
 
         $this->assertCount(1, User::all());
-        $this->assertEquals($dto->getEmail(), $user->email);
+        $this->assertEquals($dto->getEmail(), $user->getEmail());
     }
 
     /** @test */

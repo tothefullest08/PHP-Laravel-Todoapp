@@ -33,6 +33,6 @@ class AuthRepository
         $user = auth()->user();
         auth()->logout();
 
-        return $user;
+        return $user->toEntity();
     }
 }
