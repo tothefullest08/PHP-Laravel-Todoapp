@@ -3,16 +3,17 @@
 namespace Tests\Feature;
 
 use App\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 
 class AuthControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseMigrations;
 
     /** @test */
     public function testLogin()
     {
+        $this->withoutExceptionHandling();
         $data = factory(User::class)->make()->toArray();
         $this->post(route('register'), $data);
 
@@ -30,7 +31,7 @@ class AuthControllerTest extends TestCase
         $this->post(route('register'), $data);
 
         $this->post(route('login'), array_merge($data, ['email' => 'abcd@abc.com']))
-            ->assertStatus(401);
+            ->assertStatus(404);
     }
 
     /** @test */

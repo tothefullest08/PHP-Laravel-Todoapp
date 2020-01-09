@@ -3,18 +3,17 @@
 namespace App\Core\Services\Todo;
 
 use App\Core\Dto\Todo\CreateTodoDto;
-use App\Core\Repositories\TodoRepository;
-use Illuminate\Http\JsonResponse;
+use App\Core\Entities\Todo;
 
-class CreateTodoUseCase
+class CreateTodoUseCase extends TodoUseCase
 {
     /**
      * @param CreateTodoDto $dto
      *
-     * @return JsonResponse
+     * @return Todo
      */
-    public function create(CreateTodoDto $dto)
+    public function execute(CreateTodoDto $dto)
     {
-        return (new TodoRepository)->create($dto);
+        return $this->repo->create($dto);
     }
 }

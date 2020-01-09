@@ -3,12 +3,12 @@
 namespace Tests\Feature;
 
 use App\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 
 class UserControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseMigrations;
 
     /** @test */
     public function testRegister()

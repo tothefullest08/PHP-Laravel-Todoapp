@@ -9,106 +9,91 @@ use App\Core\Dto\Todo\DeleteTodoDto;
 use App\Core\Dto\Todo\IndexTodoDto;
 use App\Core\Dto\Todo\ShowTodoDto;
 use App\Core\Dto\Todo\UpdateTodoDto;
-use App\Http\Responses\ResponseHandler;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\QueryException;
+use Illuminate\Support\Collection;
 
 class TodoRepository
 {
     /**
      * @param IndexTodoDto $dto
      *
-     * @return JsonResponse
+     * @return Todo[]|Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Query\Builder[]|Collection|null
      */
     public function index(IndexTodoDto $dto)
     {
-        try {
-            $todos = Todo::query()->where('user_id', $dto->getUserId())->orderBy('id', 'DESC')->get();
-            return ResponseHandler::success($todos);
-        } catch (ModelNotFoundException $e) {
-            return ResponseHandler::notFound($dto);
-        } catch (QueryException $e) {
-            return ResponseHandler::badRequest($dto, 'Database error');
+        $todos = Todo::query()->where('user_id', $dto->getUserId())->orderBy('id', 'DESC')->get();
+        if ($todos === null) {
+            return null;
         }
+        return $todos;
     }
 
     /**
      * @param CreateTodoDto $dto
      *
-     * @return JsonResponse
+     * @return \App\Core\Entities\Todo
      */
     public function create(CreateTodoDto $dto)
     {
-        $todo = new Todo;
+        $todo              = new Todo;
         $todo->user_id     = $dto->getUserId();
         $todo->title       = $dto->getTitle();
         $todo->description = $dto->getDescription();
+        $todo->save();
 
-        try {
-            $todo->save();
-            return ResponseHandler::success($todo, 'create success', 201);
-        } catch (QueryException $e) {
-            return ResponseHandler::badRequest($dto, 'Database error');
-        }
+        return $todo->toEntity();
     }
 
     /**
      * @param ShowTodoDto $dto
      *
-     * @return JsonResponse
+     * @return \App\Core\Entities\Todo
      */
     public function show(ShowTodoDto $dto)
     {
         try {
-            $todo = Todo::query()->where('id', '=', $dto->getId())->firstOrFail();
-            return ResponseHandler::success($todo);
+            $todo = Todo::query()->where('id', $dto->getId())->firstOrFail();
+            return $todo->toEntity();
         } catch (ModelNotFoundException $e) {
-            return ResponseHandler::notFound($dto);
-        } catch (QueryException $e) {
-            return ResponseHandler::badRequest($dto, 'Database error');
+            throw new ModelNotFoundException;
         }
     }
 
     /**
      * @param UpdateTodoDto $dto
      *
-     * @return JsonResponse
+     * @return \App\Core\Entities\Todo
      */
     public function update(UpdateTodoDto $dto)
     {
         try {
-            $todo = Todo::query()->where('id', '=', $dto->getId())->firstOrFail();
+            $todo = Todo::query()->where('id', $dto->getId())->firstOrFail();
 
             $todo->title       = $dto->getTitle();
             $todo->description = $dto->getDescription();
             $todo->completed   = $dto->getCompleted();
             $todo->save();
-            return ResponseHandler::success($todo);
+            return $todo->toEntity();
         } catch (ModelNotFoundException $e) {
-            return ResponseHandler::notFound($dto);
-        } catch (QueryException $e) {
-            return ResponseHandler::badRequest($dto, 'Database error');
+            throw new ModelNotFoundException;
         }
     }
 
     /**
      * @param DeleteTodoDto $dto
      *
-     * @return Exception|JsonResponse
+     * @return \App\Core\Entities\Todo
+     * @throws Exception
      */
     public function delete(DeleteTodoDto $dto)
     {
         try {
-            $todo = Todo::query()->where('id', '=', $dto->getId())->firstOrFail();
+            $todo = Todo::query()->where('id', $dto->getId())->firstOrFail();
             $todo->delete();
-            return ResponseHandler::success($todo);
+            return $todo->toEntity();
         } catch (ModelNotFoundException $e) {
-            return ResponseHandler::notFound($dto);
-        } catch (QueryException $e) {
-            return ResponseHandler::badRequest($dto, 'Database error');
-        } catch (Exception $e) {
-            return new Exception('Error', 500);
+            throw new ModelNotFoundException;
         }
     }
 }

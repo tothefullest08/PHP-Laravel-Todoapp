@@ -4,12 +4,12 @@ namespace Tests\Feature;
 
 use App\User;
 use App\Todo;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class TodoControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseMigrations;
 
     /** @test */
     public function testIndex()
@@ -24,6 +24,7 @@ class TodoControllerTest extends TestCase
     /** @test */
     public function testCreate()
     {
+        $this->withoutExceptionHandling();
         parent::authenticate();
         $data = factory(Todo::class)->make()->toArray();
 
@@ -65,11 +66,7 @@ class TodoControllerTest extends TestCase
     {
         parent::authenticate();
         $data          = factory(Todo::class)->make()->toArray();
-        $invalid_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwO' .
-            'lwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC91c2Vyc1wvbG9naW4iLCJpYXQiOjE1NzY2M' .
-            'zU4NjgsImV4cCI6MTU3NjYzOTQ2OCwibmJmIjoxNTc2NjM1ODY4LCJqdGkiOiJpdVhhN2' .
-            'lmQlBiS0JpWVhMIiwic3ViIjozLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE' .
-            '1M2ExNGUwYjA0NzU0NmFhIn0.2CTFHA7HZ95B2rC0qottsi6wjiI_m6QGjLkfFmA9oYQ';
+        $invalid_token = 'e11';
 
         $this->withHeaders(['Authorization' => 'Bearer ' . $invalid_token])
             ->post(route('create.todo'), $data)
@@ -137,7 +134,7 @@ class TodoControllerTest extends TestCase
         $data = factory(Todo::class)->make()->toArray();
 
         $this->WithHeaders(['Authorization' => 'Bearer ' . $this->token])
-            ->put(route('update.todo', ['id' => $todo->id]), array_merge($data, ['title' => 'f']))
+            ->put(route('update.todo', ['id' => $todo->id]), array_merge($data, ['title' => 'a']))
             ->assertStatus(422);
     }
 

@@ -1,75 +1,76 @@
 <?php
 
-namespace App\Core\Dto\Todo;
+namespace App\Core\Entities;
 
-class UpdateTodoDto
+class Todo extends Base
 {
-    /**
-     * @var int
-     */
     private $id;
 
-    /**
-     * @var string
-     */
+    private $user_id;
+
     private $title;
 
-    /**
-     * @var string
-     */
     private $description;
 
-    /**
-     * @var bool
-     */
     private $completed;
 
     /**
-     * @param int $id
+     * @param mixed $id
      *
-     * @return UpdateTodoDto
+     * @return Todo
      */
-    public function setId(int $id): UpdateTodoDto
+    public function setId($id)
     {
         $this->id = $id;
         return $this;
     }
 
     /**
-     * @param string $title
+     * @param mixed $user_id
      *
-     * @return UpdateTodoDto
+     * @return Todo
      */
-    public function setTitle(string $title): UpdateTodoDto
+    public function setUserId($user_id)
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+
+    /**
+     * @param mixed $title
+     *
+     * @return Todo
+     */
+    public function setTitle($title)
     {
         $this->title = $title;
         return $this;
     }
 
     /**
-     * @param string $description
+     * @param mixed $description
      *
-     * @return UpdateTodoDto
+     * @return Todo
      */
-    public function setDescription(string $description): UpdateTodoDto
+    public function setDescription($description)
     {
         $this->description = $description;
         return $this;
     }
 
     /**
-     * @param bool $completed
+     * @param mixed $completed
      *
-     * @return UpdateTodoDto
+     * @return Todo
      */
-    public function setCompleted(bool $completed): UpdateTodoDto
+    public function setCompleted($completed)
     {
         $this->completed = $completed;
         return $this;
     }
 
     /**
-     * @return int
+     * @return mixed
      */
     public function getId()
     {
@@ -77,7 +78,15 @@ class UpdateTodoDto
     }
 
     /**
-     * @return string
+     * @return mixed
+     */
+    public function getUserId()
+    {
+        return $this->user_id;
+    }
+
+    /**
+     * @return mixed
      */
     public function getTitle()
     {
@@ -85,7 +94,7 @@ class UpdateTodoDto
     }
 
     /**
-     * @return string
+     * @return mixed
      */
     public function getDescription()
     {
@@ -93,7 +102,7 @@ class UpdateTodoDto
     }
 
     /**
-     * @return bool
+     * @return mixed
      */
     public function getCompleted()
     {

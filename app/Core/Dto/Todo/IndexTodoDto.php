@@ -10,13 +10,14 @@ class IndexTodoDto
     private $userId;
 
     /**
-     * IndexTodoDto constructor.
-     *
      * @param int $userId
+     *
+     * @return IndexTodoDto
      */
-    public function __construct(int $userId)
+    public function setUserId(int $userId): IndexTodoDto
     {
         $this->userId = $userId;
+        return $this;
     }
 
     /**

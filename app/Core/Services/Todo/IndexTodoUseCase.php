@@ -3,18 +3,19 @@
 namespace App\Core\Services\Todo;
 
 use App\Core\Dto\Todo\IndexTodoDto;
-use App\Core\Repositories\TodoRepository;
-use Illuminate\Http\JsonResponse;
+use App\Todo;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection;
 
-class IndexTodoUseCase
+class IndexTodoUseCase extends TodoUseCase
 {
     /**
      * @param IndexTodoDto $dto
      *
-     * @return JsonResponse
+     * @return Todo[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Builder[]|Collection
      */
-    public function index(IndexTodoDto $dto)
+    public function execute(IndexTodoDto $dto)
     {
-        return (new TodoRepository)->index($dto);
+        return $this->repo->index($dto);
     }
 }

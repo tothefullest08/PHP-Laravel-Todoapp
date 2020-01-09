@@ -2,16 +2,15 @@
 
 namespace App\Core\Services\Auth;
 
-use App\Core\Repositories\AuthRepository;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\Auth\Authenticatable;
 
-class LogoutAuthUseCase
+class LogoutAuthUseCase extends AuthUseCase
 {
     /**
-     * @return JsonResponse
+     * @return Authenticatable
      */
-    public function logout()
+    public function execute()
     {
-        return (new AuthRepository)->logout();
+        return $this->repo->logout();
     }
 }
