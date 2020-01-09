@@ -29,7 +29,7 @@ class TodoController extends Controller
      */
     public function index(IndexTodoUseCase $useCase): JsonResponse
     {
-        $dto             = (new IndexTodoDto())->setUserId(request()->user()->id);
+        $dto = (new IndexTodoDto())->setUserId(request()->user()->id);
 
         try {
             $useCaseResponse = $useCase->execute($dto);
@@ -52,7 +52,7 @@ class TodoController extends Controller
      */
     public function create(CreateTodoRequest $request, CreateTodoUseCase $useCase)
     {
-        $dto             = (new CreateTodoDto())
+        $dto = (new CreateTodoDto())
             ->setUserId(request()->user()->id)
             ->setTitle($request->input('title'))
             ->setDescription($request->input('description'));
@@ -74,7 +74,7 @@ class TodoController extends Controller
      */
     public function show(int $id, showTodoUseCase $useCase): JsonResponse
     {
-        $dto             = (new showTodoDto())->setId($id);
+        $dto = (new showTodoDto())->setId($id);
 
         try {
             $useCaseResponse = $useCase->execute($dto);
@@ -122,7 +122,7 @@ class TodoController extends Controller
      */
     public function destroy(int $id, DeleteTodoUseCase $useCase): JsonResponse
     {
-        $dto             = (new deleteTodoDto)->setId($id);
+        $dto = (new deleteTodoDto)->setId($id);
 
         try {
             $useCaseResponse = $useCase->execute($dto);

@@ -28,7 +28,7 @@ class TodoRepositoryTest extends TestCase
     /** @test */
     public function testIndex()
     {
-        $todos =[];
+        $todos = [];
         for ($i = 0; $i < 5; $i++) {
             $todos[] = $this->createTodo();
         }

@@ -28,7 +28,7 @@ class UserController extends Controller
      */
     public function register(RegisterUserRequest $request, RegisterUserUseCase $useCase): JsonResponse
     {
-        $dto             = (new RegisterUserDto)
+        $dto = (new RegisterUserDto)
             ->setEmail($request->input('email'))
             ->setPassword(bcrypt($request->input('password')));
 

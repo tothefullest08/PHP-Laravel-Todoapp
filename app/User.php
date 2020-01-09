@@ -90,6 +90,7 @@ class User extends Authenticatable implements JWTSubject
     {
         $user = new UserEntity();
 
+        /** @noinspection PhpUndefinedFieldInspection */
         return $user->setId($this->id)
             ->setEmail($this->email)
             ->setPassword($this->password);

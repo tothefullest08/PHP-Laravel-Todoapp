@@ -3,14 +3,13 @@
 namespace App\Core\Services\User;
 
 use App\Core\Dto\User\RegisterUserDto;
-use App\User;
 
 class RegisterUserUseCase extends UserUseCase
 {
     /**
      * @param RegisterUserDto $dto
      *
-     * @return User
+     * @return \App\Core\Entities\User
      */
     public function execute(RegisterUserDto $dto)
     {

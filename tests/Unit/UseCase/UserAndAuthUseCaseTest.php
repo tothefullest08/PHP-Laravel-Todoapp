@@ -26,16 +26,16 @@ class UserAndAuthUseCaseTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->factory = app(UserAndAuthDtoFactory::class);
+        $this->factory             = app(UserAndAuthDtoFactory::class);
         $this->registerUserUseCase = app(RegisterUserUseCase::class);
-        $this->loginAuthUseCase = app(LoginAuthUseCase::class);
-        $this->logoutAuthUseCase = app(LogoutAuthUseCase::class);
+        $this->loginAuthUseCase    = app(LoginAuthUseCase::class);
+        $this->logoutAuthUseCase   = app(LogoutAuthUseCase::class);
     }
 
     /** @test */
     public function testRegister()
     {
-        $dto = $this->factory->validDataForRegister();
+        $dto  = $this->factory->validDataForRegister();
         $user = $this->registerUserUseCase->execute($dto);
 
         $this->assertCount(1, User::all());
@@ -56,7 +56,7 @@ class UserAndAuthUseCaseTest extends TestCase
     /** @test */
     public function testLogin()
     {
-        $dto = $this->factory->validDataForLogin();
+        $dto   = $this->factory->validDataForLogin();
         $token = $this->loginAuthUseCase->execute($dto);
 
         $this->assertSame(gettype($token), 'string');
@@ -65,7 +65,7 @@ class UserAndAuthUseCaseTest extends TestCase
     /** @test */
     public function testLoginFailed()
     {
-        $dto = $this->factory->InvalidDataForLogin();
+        $dto      = $this->factory->InvalidDataForLogin();
         $response = $this->loginAuthUseCase->execute($dto);
 
         $this->assertNull($response);

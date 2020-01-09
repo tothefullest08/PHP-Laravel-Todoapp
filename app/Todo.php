@@ -38,7 +38,7 @@ class Todo extends Model
         = [
             'title',
             'description',
-            'completed_at',
+            'completed',
         ];
 
     /**

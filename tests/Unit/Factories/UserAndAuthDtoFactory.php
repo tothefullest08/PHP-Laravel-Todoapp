@@ -34,7 +34,7 @@ class UserAndAuthDtoFactory
      */
     public function validDataForLogin()
     {
-        $userDto = $this->validDataForRegister();
+        $userDto  = $this->validDataForRegister();
         $password = $userDto->getPassword();
         $userDto->setPassword(bcrypt($password));
 
@@ -50,7 +50,7 @@ class UserAndAuthDtoFactory
      */
     public function InvalidDataForLogin()
     {
-        $userDto = $this->validDataForRegister();
+        $userDto  = $this->validDataForRegister();
         $password = $userDto->getPassword();
         $userDto->setPassword(bcrypt($password));
 

@@ -20,9 +20,9 @@ abstract class TestCase extends BaseTestCase
 
     protected function authenticate()
     {
-        $this->user  = factory(User::class)->create();
+        $this->user   = factory(User::class)->create();
         $this->userId = $this->user->id;
-        $this->token = JWTAuth::fromUser($this->user);
+        $this->token  = JWTAuth::fromUser($this->user);
     }
 
     public function createTodo()

@@ -3,13 +3,14 @@
 namespace App\Core\Services\Todo;
 
 use App\Core\Dto\Todo\UpdateTodoDto;
+use App\Core\Entities\Todo;
 
 class UpdateTodoUseCase extends TodoUseCase
 {
     /**
      * @param UpdateTodoDto $dto
      *
-     * @return \App\Core\Entities\Todo
+     * @return Todo
      */
     public function execute(UpdateTOdoDto $dto)
     {
